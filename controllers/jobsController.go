@@ -5,7 +5,6 @@ import (
 	"Backend/models"
 	"Backend/services"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -33,17 +32,17 @@ func NewJobsController(runnersService *services.JobsService, usersService *servi
 func (rc JobsController) CreateJob(ctx *gin.Context) {
 	metrics.HttpRequestsCounter.Inc()
 
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
+	//if responseErr != nil {
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
 
-	if !auth {
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
+	//if !auth {
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
 
 	body, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
@@ -72,17 +71,17 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 func (rc JobsController) UpdateJob(ctx *gin.Context) {
 	metrics.HttpRequestsCounter.Inc()
 
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
-
-	if !auth {
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
+	//if responseErr != nil {
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
 
 	body, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
@@ -99,7 +98,7 @@ func (rc JobsController) UpdateJob(ctx *gin.Context) {
 		return
 	}
 
-	responseErr = rc.jobsService.UpdateJob(&job)
+	responseErr := rc.jobsService.UpdateJob(&job)
 	if responseErr != nil {
 		ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
 		return
@@ -111,21 +110,21 @@ func (rc JobsController) UpdateJob(ctx *gin.Context) {
 func (rc JobsController) DeleteJob(ctx *gin.Context) {
 	metrics.HttpRequestsCounter.Inc()
 
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
-
-	if !auth {
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
+	//if responseErr != nil {
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
 
 	jobId := ctx.Param("id")
 
-	responseErr = rc.jobsService.DeleteJob(jobId)
+	responseErr := rc.jobsService.DeleteJob(jobId)
 	if responseErr != nil {
 		ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
 		return
@@ -137,20 +136,20 @@ func (rc JobsController) DeleteJob(ctx *gin.Context) {
 func (rc JobsController) GetJob(ctx *gin.Context) {
 	metrics.HttpRequestsCounter.Inc()
 
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN, ROLE_JOB})
-	if responseErr != nil {
-		metrics.GetJobHttpResponsesCounter.WithLabelValues(
-			strconv.Itoa(responseErr.Status)).Inc()
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
-
-	if !auth {
-		metrics.GetJobHttpResponsesCounter.WithLabelValues("401").Inc()
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN, ROLE_JOB})
+	//if responseErr != nil {
+	//	metrics.GetJobHttpResponsesCounter.WithLabelValues(
+	//		strconv.Itoa(responseErr.Status)).Inc()
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	metrics.GetJobHttpResponsesCounter.WithLabelValues("401").Inc()
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
 
 	jobId := ctx.Param("id")
 
@@ -176,18 +175,18 @@ func (rc JobsController) GetJobsBatch(ctx *gin.Context) {
 		timer.ObserveDuration()
 	}()
 
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN, ROLE_JOB})
-	fmt.Println("Response error", responseErr)
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
-
-	if !auth {
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN, ROLE_JOB})
+	//fmt.Println("Response error", responseErr)
+	//if responseErr != nil {
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
 
 	params := ctx.Request.URL.Query()
 	country := params.Get("country")

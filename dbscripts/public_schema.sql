@@ -15,21 +15,21 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 SET search_path = public, pg_catalog;
 SET default_tablespace = '';
 
--- jobs
+-- jobs - static company id for now
 CREATE TABLE jobs (
     id uuid NOT NULL DEFAULT uuid_generate_v1mc(),
     name text NOT NULL,
-    address text NOT NULL,
-    city text NOT NULL,
+    address text NULL,
+    city text NULL,
     state text NOT NULL,
     zip_code text NOT NULL,
-    country text NOT NULL,
-    latitude text NOT NULL,
-    longitude text NOT NULL,
+    country text NULL,
+    latitude text NULL,
+    longitude text NULL,
     scheduled_date date NULL,
     scheduled boolean NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
-    company_id uuid NOT NULL,
+    company_id int NOT NULL DEFAULT 1,
 
     CONSTRAINT jobs_pk PRIMARY KEY (id)
 );

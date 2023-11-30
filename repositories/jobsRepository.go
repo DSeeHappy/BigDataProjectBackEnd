@@ -20,11 +20,11 @@ func NewJobsRepository(dbHandler *sql.DB) *JobsRepository {
 func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.ResponseError) {
 
 	query := `
-		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude, scheduled_date, scheduled, is_active)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'false', 'true')
+		INSERT INTO jobs(name,company_id,state, city, zip_code, scheduled, is_active)
+		VALUES ($1, $2, $3, $4,$5, 'false', 'true')
 		RETURNING id`
 
-	rows, err := rr.dbHandler.Query(query, job.Name, job.Address, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.ScheduledDate)
+	rows, err := rr.dbHandler.Query(query, job.Name, job.CompanyID, job.City, job.State, job.ZipCode)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -195,9 +195,10 @@ func (rr JobsRepository) GetJob(jobId string) (*models.Job, *models.ResponseErro
 
 	defer rows.Close()
 
-	var id string
+	var id, name, state, zipCode, address, city, country, latitude, longitude, scheduledDate, companyId sql.NullString
+	var scheduled, isActive sql.NullBool
 	for rows.Next() {
-		err := rows.Scan(&id)
+		err := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -213,7 +214,22 @@ func (rr JobsRepository) GetJob(jobId string) (*models.Job, *models.ResponseErro
 		}
 	}
 
-	return &models.Job{}, nil
+	return &models.Job{
+		ID:            id.String,
+		Name:          name.String,
+		CompanyID:     companyId.String,
+		Address:       address.String,
+		City:          city.String,
+		State:         state.String,
+		ZipCode:       zipCode.String,
+		Country:       country.String,
+		Latitude:      country.String,
+		Longitude:     longitude.String,
+		ScheduledDate: scheduledDate.String,
+		Scheduled:     scheduled.Bool,
+		IsActive:      isActive.Bool,
+		Weathers:      nil,
+	}, nil
 }
 
 func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
@@ -232,12 +248,11 @@ func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
 	defer rows.Close()
 
 	jobs := make([]*models.Job, 0)
-	var id, name, state, zipCode string
-	var address, city, country, latitude, longitude, scheduledDate sql.NullString
-	var scheduled sql.NullBool
+	var id, name, state, zipCode, address, city, country, latitude, longitude, scheduledDate, companyId sql.NullString
+	var scheduled, isActive sql.NullBool
 
 	for rows.Next() {
-		err := rows.Scan(&id, &address, &city, &state, &country, &latitude, &longitude, &scheduledDate, &scheduled)
+		err := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -246,17 +261,20 @@ func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
 		}
 
 		job := &models.Job{
-			ID:            id,
-			Name:          name,
-			Address:       sql.NullString{String: address.String, Valid: true},
-			City:          sql.NullString{String: city.String, Valid: true},
-			State:         state,
-			ZipCode:       zipCode,
-			Country:       country,
-			Latitude:      latitude,
-			Longitude:     longitude,
-			ScheduledDate: scheduledDate,
-			Scheduled:     sql.NullBool{Bool: scheduled.Bool, Valid: true},
+			ID:            id.String,
+			Name:          name.String,
+			Address:       address.String,
+			City:          city.String,
+			State:         state.String,
+			ZipCode:       zipCode.String,
+			Country:       country.String,
+			Latitude:      latitude.String,
+			Longitude:     longitude.String,
+			ScheduledDate: scheduledDate.String,
+			Scheduled:     scheduled.Bool,
+			CompanyID:     companyId.String,
+			IsActive:      isActive.Bool,
+			Weathers:      nil,
 		}
 
 		jobs = append(jobs, job)
@@ -291,8 +309,8 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 
 	jobs := make([]*models.Job, 0)
 	var id, name, state, zipCode string
-	var address, country, latitude, longitude, scheduledDate sql.NullString
-	var scheduled sql.NullBool
+	var address, country, latitude, longitude, scheduledDate string
+	var scheduled bool
 
 	for rows.Next() {
 		err := rows.Scan(&id, &address, &city, &state, &country, &latitude, &longitude, &scheduledDate, &scheduled)
@@ -306,15 +324,15 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 		job := &models.Job{
 			ID:            id,
 			Name:          name,
-			Address:       sql.NullString{String: address.String, Valid: true},
-			City:          sql.NullString{String: city, Valid: true},
+			Address:       address,
+			City:          city,
 			State:         state,
 			ZipCode:       zipCode,
 			Country:       country,
 			Latitude:      latitude,
 			Longitude:     longitude,
 			ScheduledDate: scheduledDate,
-			Scheduled:     sql.NullBool{Bool: scheduled.Bool, Valid: true},
+			Scheduled:     scheduled,
 		}
 
 		jobs = append(jobs, job)

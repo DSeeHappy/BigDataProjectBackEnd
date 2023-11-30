@@ -63,9 +63,9 @@ func (rr WeatherRepository) CreateWeather(result *models.Weather) (*models.Weath
 
 func (rr WeatherRepository) DeleteWeather(resultId string) (*models.Weather, *models.ResponseError) {
 	query := `
-		DELETE FROM results
+		DELETE FROM weathers
 		WHERE id = $1
-		RETURNING job_id, race_result, year`
+		RETURNING job_id, job_weather, location, position`
 
 	rows, err := rr.transaction.Query(query, resultId)
 	if err != nil {
@@ -106,7 +106,7 @@ func (rr WeatherRepository) DeleteWeather(resultId string) (*models.Weather, *mo
 
 func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, *models.ResponseError) {
 	query := `
-	SELECT id, job_id, job_weather, location, position, year;
+	SELECT id, job_id, job_weather, location, position, year
 	FROM weathers
 	WHERE job_id = $1`
 
