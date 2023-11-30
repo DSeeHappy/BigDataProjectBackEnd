@@ -4,8 +4,6 @@ import (
 	"Backend/models"
 	"Backend/repositories"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 type JobsService struct {
@@ -73,36 +71,21 @@ func (rs JobsService) GetJob(jobId string) (*models.Job, *models.ResponseError) 
 	return job, nil
 }
 
-func (rs JobsService) GetJobsBatch(country string, year string) ([]*models.Job, *models.ResponseError) {
-	if country != "" && year != "" {
+func (rs JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *models.ResponseError) {
+	if city != "" && state != "" {
 		return nil, &models.ResponseError{
-			Message: "Only one parameter, country or year, can be passed",
+			Message: "Only one parameter, city or state, can be passed",
 			Status:  http.StatusBadRequest,
 		}
 	}
 
-	if country != "" {
-		return rs.jobsRepository.GetJobsByCity(country)
+	if city != "" {
+		return rs.jobsRepository.GetJobsByCity(city)
 	}
 
-	if year != "" {
-		intYear, err := strconv.Atoi(year)
-		if err != nil {
-			return nil, &models.ResponseError{
-				Message: "Invalid year",
-				Status:  http.StatusBadRequest,
-			}
-		}
+	if state != "" {
 
-		currentYear := time.Now().Year()
-		if intYear < 0 || intYear > currentYear {
-			return nil, &models.ResponseError{
-				Message: "Invalid year",
-				Status:  http.StatusBadRequest,
-			}
-		}
-
-		return rs.jobsRepository.GetJobsByZipCode(intYear)
+		return rs.jobsRepository.GetJobsByZipCode(state)
 	}
 
 	return rs.jobsRepository.GetAllJobs()

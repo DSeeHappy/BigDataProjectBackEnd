@@ -308,12 +308,10 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 	defer rows.Close()
 
 	jobs := make([]*models.Job, 0)
-	var id, name, state, zipCode string
-	var address, country, latitude, longitude, scheduledDate string
-	var scheduled bool
-
+	var id, name, state, zipCode, address, country, latitude, longitude, scheduledDate, companyId sql.NullString
+	var scheduled, isActive sql.NullBool
 	for rows.Next() {
-		err := rows.Scan(&id, &address, &city, &state, &country, &latitude, &longitude, &scheduledDate, &scheduled)
+		err := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -322,17 +320,20 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 		}
 
 		job := &models.Job{
-			ID:            id,
-			Name:          name,
-			Address:       address,
+			ID:            id.String,
+			Name:          name.String,
+			Address:       address.String,
 			City:          city,
-			State:         state,
-			ZipCode:       zipCode,
-			Country:       country,
-			Latitude:      latitude,
-			Longitude:     longitude,
-			ScheduledDate: scheduledDate,
-			Scheduled:     scheduled,
+			State:         state.String,
+			ZipCode:       zipCode.String,
+			Country:       country.String,
+			Latitude:      latitude.String,
+			Longitude:     longitude.String,
+			ScheduledDate: scheduledDate.String,
+			Scheduled:     scheduled.Bool,
+			CompanyID:     companyId.String,
+			IsActive:      isActive.Bool,
+			Weathers:      nil,
 		}
 
 		jobs = append(jobs, job)
@@ -348,7 +349,7 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 	return jobs, nil
 }
 
-func (rr JobsRepository) GetJobsByZipCode(year int) ([]*models.Job, *models.ResponseError) {
+func (rr JobsRepository) GetJobsByZipCode(zipCode string) ([]*models.Job, *models.ResponseError) {
 	//query := `
 	//SELECT jobs.id, jobs.address, jobs.city, jobs.state, jobs.zip_code, jobs.scheduled_date, jobs.scheduled, weathers.id
 	//FROM jobs
