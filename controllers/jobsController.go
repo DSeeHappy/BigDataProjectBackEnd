@@ -54,7 +54,7 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 	var runner models.Job
 	err = json.Unmarshal(body, &runner)
 	if err != nil {
-		log.Println("Error while unmarshaling create runner request body", err)
+		log.Println("Error while unmarshalling create runner request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -93,7 +93,7 @@ func (rc JobsController) UpdateJob(ctx *gin.Context) {
 	var job models.Job
 	err = json.Unmarshal(body, &job)
 	if err != nil {
-		log.Println("Error while unmarshaling update job request body", err)
+		log.Println("Error while unmarshalling update job request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

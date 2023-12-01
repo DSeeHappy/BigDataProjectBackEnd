@@ -25,41 +25,41 @@ func NewWeatherController(resultsService *services.WeatherService,
 	}
 }
 
-func (rc WeatherController) CreateWeather(ctx *gin.Context) {
-	accessToken := ctx.Request.Header.Get("Token")
-	auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
+func (rc WeatherController) RequestWeather(ctx *gin.Context) {
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN})
+	//if responseErr != nil {
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
+
+	weather, err := http.Get("https://pro.openweathermap.org/data/2.5/forecast/climate?lat=39.63617&lon=-104.77700&appid=fcc51394a211b5d91ede128ba9c971e5")
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if !auth {
-		ctx.Status(http.StatusUnauthorized)
-		return
-	}
-
-	body, err := io.ReadAll(ctx.Request.Body)
+	weatherResponse, err := io.ReadAll(weather.Body)
 	if err != nil {
 		log.Println("Error while reading create result request body", err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	var result models.Weather
-	err = json.Unmarshal(body, &result)
+	var weatherDataResponse models.WeatherResponseDTO
+
+	err = json.Unmarshal(weatherResponse, &weatherDataResponse)
 	if err != nil {
-		log.Println("Error while unmarshaling create result request body", err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		log.Println("Error while unmarshalling create result request body", err)
 		return
 	}
 
-	response, responseErr := rc.weatherService.CreateWeather(&result)
-	if responseErr != nil {
-		ctx.JSON(responseErr.Status, responseErr)
-		return
-	}
+	ctx.JSON(http.StatusOK, weatherDataResponse)
 
-	ctx.JSON(http.StatusOK, response)
 }
 
 func (rc WeatherController) DeleteWeather(ctx *gin.Context) {

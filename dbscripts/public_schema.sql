@@ -44,29 +44,39 @@ ON jobs (zip_code);
 CREATE TABLE weathers (
     id uuid NOT NULL DEFAULT uuid_generate_v1mc(),
     job_id uuid NOT NULL,
-    job_weather text NOT NULL,
-    location text NOT NULL,
-    position int NOT NULL,
-    year int NOT NULL,
+    pressure text NULL,
+    humidity text NULL,
+    sunrise text NULL,
+    sunset text NULL,
+    speed text NULL,
+    deg text NULL,
+    clouds text NULL,
+    rain text NULL,
+    snow text NULL,
+    icon text NULL,
+    description text NULL,
+    main text NULL,
+    city_id text NULL,
+    city_name text NULL,
+    country text NULL,
+    time_zone text NULL,
+    population text NULL,
+    latitude text NULL,
+    longitude text NULL,
+    temp_day text NULL,
+    temp_min text NULL,
+    temp_max text NULL,
+    temp_night text NULL,
+    temp_eve text NULL,
+    temp_morn text NULL,
+    feels_like_day text NULL,
+    feels_like_night text NULL,
+    feels_like_eve text NULL,
+    feels_like_morn text NULL,
+
 
     CONSTRAINT weathers_pk PRIMARY KEY (id),
     CONSTRAINT fk_weathers_jobs_id FOREIGN KEY (job_id)
-        REFERENCES jobs (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-);
-
--- weather
-CREATE TABLE users (
-    id uuid NOT NULL DEFAULT uuid_generate_v1mc(),
-    username text NOT NULL,
-    password text NOT NULL,
-    access_token text NULL,
-    company_id uuid NULL,
-    user_role text NULL,
-
-    CONSTRAINT users_pk PRIMARY KEY (id),
-    CONSTRAINT fk_weathers_jobs_id FOREIGN KEY (company_id)
         REFERENCES jobs (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION

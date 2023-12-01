@@ -19,11 +19,6 @@ func TestGetJobsResponse(t *testing.T) {
 	dbHandler, mock, _ := sqlmock.New()
 	defer dbHandler.Close()
 
-	columnsUsers := []string{"user_role"}
-	mock.ExpectQuery("SELECT user_role").WillReturnRows(
-		sqlmock.NewRows(columnsUsers).AddRow("runner"),
-	)
-
 	columns := []string{"id", "first_name", "last_name", "age", "is_active", "country", "personal_best", "season_best"}
 	mock.ExpectQuery("SELECT *").WillReturnRows(
 		sqlmock.NewRows(columns).
@@ -55,7 +50,7 @@ func initTestRouter(dbHandler *sql.DB) *gin.Engine {
 
 	router := gin.Default()
 
-	router.GET("/runner", jobsController.GetJobsBatch)
+	router.GET("/job", jobsController.GetJobsBatch)
 
 	return router
 }

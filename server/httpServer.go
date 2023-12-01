@@ -37,7 +37,7 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	router.GET("/job/:id", jobsController.GetJob)
 	router.GET("/job", jobsController.GetJobsBatch)
 
-	router.POST("/weather", weatherController.CreateWeather)
+	router.POST("/weather", weatherController.RequestWeather)
 	router.DELETE("/weather/:id", weatherController.DeleteWeather)
 
 	router.POST("/login", usersController.Login)

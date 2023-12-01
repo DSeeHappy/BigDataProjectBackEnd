@@ -23,7 +23,7 @@ func (rr WeatherRepository) CreateWeather(result *models.Weather) (*models.Weath
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'false', 'true')
 		RETURNING id`
 
-	rows, err := rr.transaction.Query(query, result.JobID, result.JobWeather, result.Location, result.Position, result.Year)
+	rows, err := rr.transaction.Query(query, result.ID)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -52,12 +52,8 @@ func (rr WeatherRepository) CreateWeather(result *models.Weather) (*models.Weath
 	}
 
 	return &models.Weather{
-		ID:         resultId,
-		JobID:      result.JobID,
-		JobWeather: result.JobWeather,
-		Location:   result.Location,
-		Position:   result.Position,
-		Year:       result.Year,
+		ID:    resultId,
+		JobID: result.JobID,
 	}, nil
 }
 
@@ -65,7 +61,7 @@ func (rr WeatherRepository) DeleteWeather(resultId string) (*models.Weather, *mo
 	query := `
 		DELETE FROM weathers
 		WHERE id = $1
-		RETURNING job_id, job_weather, location, position`
+		RETURNING job_id`
 
 	rows, err := rr.transaction.Query(query, resultId)
 	if err != nil {
@@ -97,16 +93,14 @@ func (rr WeatherRepository) DeleteWeather(resultId string) (*models.Weather, *mo
 	}
 
 	return &models.Weather{
-		ID:         resultId,
-		JobID:      jobId,
-		JobWeather: raceWeather,
-		Year:       year,
+		ID:    resultId,
+		JobID: jobId,
 	}, nil
 }
 
 func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, *models.ResponseError) {
 	query := `
-	SELECT id, job_id, job_weather, location, position, year
+	SELECT id, job_id
 	FROM weathers
 	WHERE job_id = $1`
 
@@ -134,12 +128,8 @@ func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, 
 		}
 
 		result := &models.Weather{
-			ID:         id,
-			JobID:      jobId,
-			JobWeather: raceWeather,
-			Location:   location,
-			Position:   position,
-			Year:       year,
+			ID:    id,
+			JobID: jobId,
 		}
 
 		results = append(results, result)

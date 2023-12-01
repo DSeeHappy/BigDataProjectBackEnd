@@ -3,7 +3,7 @@ package models
 type Job struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
-	CompanyID     string     `json:"company_id,default:1""`
+	CompanyID     string     `json:"company_id,default:1"`
 	Address       string     `json:"address,default:123 Main St"`
 	City          string     `json:"city,default:San Francisco"`
 	State         string     `json:"state,default:CA"`

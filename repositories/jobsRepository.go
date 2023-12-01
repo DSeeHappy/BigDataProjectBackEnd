@@ -350,65 +350,67 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 }
 
 func (rr JobsRepository) GetJobsByZipCode(zipCode string) ([]*models.Job, *models.ResponseError) {
-	//query := `
-	//SELECT jobs.id, jobs.address, jobs.city, jobs.state, jobs.zip_code, jobs.scheduled_date, jobs.scheduled, weathers.id
-	//FROM jobs
-	//INNER JOIN (
-	//	SELECT job_id, MIN(weathers) as race_result
-	//	FROM weathers
-	//	WHERE year = $1
-	//	GROUP BY job_id) results
-	//ON jobs.id = results.job_id
-	//ORDER BY results.race_result
-	//LIMIT 10`
-	//
-	//rows, err := rr.dbHandler.Query(query, year)
-	//if err != nil {
-	//	return nil, &models.ResponseError{
-	//		Message: err.Error(),
-	//		Status:  http.StatusInternalServerError,
-	//	}
-	//}
-	//
-	//defer rows.Close()
-	//
-	//jobs := make([]*models.Job, 0)
-	//var id, firstName, lastName, country string
-	//var personalBest, seasonBest sql.NullString
-	//var age int
-	//var isActive bool
-	//
-	//for rows.Next() {
-	//	err := rows.Scan(&id, &firstName, &lastName, &age, &isActive, &country, &personalBest, &seasonBest)
-	//	if err != nil {
-	//		return nil, &models.ResponseError{
-	//			Message: err.Error(),
-	//			Status:  http.StatusInternalServerError,
-	//		}
-	//	}
-	//
-	//	job := &models.Job{
-	//		ID:           id,
-	//		FirstName:    firstName,
-	//		LastName:     lastName,
-	//		Age:          age,
-	//		IsActive:     isActive,
-	//		Country:      country,
-	//		PersonalBest: personalBest.String,
-	//		SeasonBest:   seasonBest.String,
-	//	}
-	//
-	//	jobs = append(jobs, job)
-	//}
-	//
-	//if rows.Err() != nil {
-	//	return nil, &models.ResponseError{
-	//		Message: err.Error(),
-	//		Status:  http.StatusInternalServerError,
-	//	}
-	//}
+	query := `
+	SELECT jobs.id, jobs.address, jobs.city, jobs.state, jobs.zip_code, jobs.scheduled_date, jobs.scheduled, weather.job_weather
+	FROM jobs
+	INNER JOIN (
+		SELECT job_id, MIN(weathers) as weather
+		FROM weathers
+		WHERE year = $1
+		GROUP BY job_id) results
+	ON jobs.id = results.job_id
+	ORDER BY results.weather
+	LIMIT 10`
 
-	var jobs []*models.Job
+	rows, err := rr.dbHandler.Query(query, zipCode)
+	if err != nil {
+		return nil, &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	defer rows.Close()
+
+	jobs := make([]*models.Job, 0)
+	var id, name, state, city, address, country, latitude, longitude, scheduledDate, companyId sql.NullString
+	var scheduled, isActive sql.NullBool
+
+	for rows.Next() {
+		err := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
+		if err != nil {
+			return nil, &models.ResponseError{
+				Message: err.Error(),
+				Status:  http.StatusInternalServerError,
+			}
+		}
+
+		job := &models.Job{
+			ID:            id.String,
+			Name:          name.String,
+			Address:       address.String,
+			City:          city.String,
+			State:         state.String,
+			ZipCode:       zipCode,
+			Country:       country.String,
+			Latitude:      latitude.String,
+			Longitude:     longitude.String,
+			ScheduledDate: scheduledDate.String,
+			Scheduled:     scheduled.Bool,
+			CompanyID:     companyId.String,
+			IsActive:      isActive.Bool,
+			Weathers:      nil,
+		}
+
+		jobs = append(jobs, job)
+	}
+
+	if rows.Err() != nil {
+		return nil, &models.ResponseError{
+			Message: err.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
 
 	return jobs, nil
 }
