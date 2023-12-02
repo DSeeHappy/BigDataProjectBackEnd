@@ -20,11 +20,11 @@ func NewJobsRepository(dbHandler *sql.DB) *JobsRepository {
 func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.ResponseError) {
 
 	query := `
-		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude, scheduled_date, scheduled, is_active)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'false', 'true')
+		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10, 'false', 'true')
 		RETURNING id`
 
-	rows, err := rr.dbHandler.Query(query, job.Name, job.CompanyID, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.ScheduledDate)
+	rows, err := rr.dbHandler.Query(query, job.Name, job.Address, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.CompanyID, job.ScheduledDate)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -62,6 +62,7 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 		Country:       job.Country,
 		Latitude:      job.Latitude,
 		Longitude:     job.Longitude,
+		CompanyID:     job.CompanyID,
 		ScheduledDate: job.ScheduledDate,
 		Scheduled:     job.Scheduled,
 		IsActive:      job.IsActive,

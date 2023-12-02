@@ -29,7 +29,7 @@ CREATE TABLE jobs (
     scheduled_date text NULL,
     scheduled boolean NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
-    company_id int NOT NULL DEFAULT 1,
+    company_id text NOT NULL,
 
     CONSTRAINT jobs_pk PRIMARY KEY (id)
 );
