@@ -25,8 +25,9 @@ type JobsController struct {
 
 func NewJobsController(jobsService *services.JobsService, usersService *services.UsersService, weatherService *services.WeatherService) *JobsController {
 	return &JobsController{
-		jobsService:  jobsService,
-		usersService: usersService,
+		jobsService:    jobsService,
+		usersService:   usersService,
+		weatherService: weatherService,
 	}
 }
 
@@ -69,6 +70,7 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 	response, responseErr := rc.jobsService.CreateJob(&job, *weather)
 	if responseErr != nil {
 		ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
+		//ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
 		return
 	}
 
@@ -196,10 +198,10 @@ func (rc JobsController) GetJobsBatch(ctx *gin.Context) {
 	//}
 
 	params := ctx.Request.URL.Query()
-	country := params.Get("country")
-	year := params.Get("year")
+	city := params.Get("city")
+	state := params.Get("state")
 
-	response, responseErr := rc.jobsService.GetJobsBatch(country, year)
+	response, responseErr := rc.jobsService.GetJobsBatch(city, state)
 	if responseErr != nil {
 		ctx.JSON(responseErr.Status, responseErr)
 		return

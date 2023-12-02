@@ -20,11 +20,11 @@ func NewJobsRepository(dbHandler *sql.DB) *JobsRepository {
 func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.ResponseError) {
 
 	query := `
-		INSERT INTO jobs(name,company_id,state, city, zip_code, scheduled, is_active)
-		VALUES ($1, $2, $3, $4,$5, 'false', 'true')
+		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude, scheduled_date, scheduled, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'false', 'true')
 		RETURNING id`
 
-	rows, err := rr.dbHandler.Query(query, job.Name, job.CompanyID, job.City, job.State, job.ZipCode)
+	rows, err := rr.dbHandler.Query(query, job.Name, job.CompanyID, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.ScheduledDate)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -53,15 +53,19 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 	}
 
 	return &models.Job{
-		ID:        jobId,
-		Name:      job.Name,
-		Address:   job.Address,
-		City:      job.City,
-		State:     job.State,
-		ZipCode:   job.ZipCode,
-		Country:   job.Country,
-		Latitude:  job.Latitude,
-		Longitude: job.Longitude,
+		ID:            jobId,
+		Name:          job.Name,
+		Address:       job.Address,
+		City:          job.City,
+		State:         job.State,
+		ZipCode:       job.ZipCode,
+		Country:       job.Country,
+		Latitude:      job.Latitude,
+		Longitude:     job.Longitude,
+		ScheduledDate: job.ScheduledDate,
+		Scheduled:     job.Scheduled,
+		IsActive:      job.IsActive,
+		Weathers:      job.Weathers,
 	}, nil
 }
 

@@ -26,7 +26,7 @@ CREATE TABLE jobs (
     country text NULL,
     latitude text NULL,
     longitude text NULL,
-    scheduled_date date NULL,
+    scheduled_date text NULL,
     scheduled boolean NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
     company_id int NOT NULL DEFAULT 1,

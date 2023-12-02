@@ -22,15 +22,22 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	jobsRepository := repositories.NewJobsRepository(dbHandler)
 	weatherRepository := repositories.NewWeatherRepository(dbHandler)
 	usersRepository := repositories.NewUsersRepository(dbHandler)
+
 	jobsService := services.NewJobsService(jobsRepository, weatherRepository)
 	weatherService := services.NewWeatherService(weatherRepository, jobsRepository)
 	usersService := services.NewUsersService(usersRepository)
+
 	jobsController := controllers.NewJobsController(jobsService, usersService, weatherService)
 	weatherController := controllers.NewWeatherController(weatherService, usersService)
 	usersController := controllers.NewUsersController(usersService)
 
 	router := gin.Default()
 
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"message": "Work Weather Scheduler API",
+		})
+	})
 	router.POST("/jobs", jobsController.CreateJob)
 	router.PUT("/jobs", jobsController.UpdateJob)
 	router.DELETE("/jobs/:id", jobsController.DeleteJob)

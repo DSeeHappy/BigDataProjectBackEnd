@@ -27,6 +27,7 @@ func (js JobsService) CreateJob(job *models.Job, weather []models.Weather) (*mod
 	job.AddWeatherListToJob(weather)
 
 	return js.jobsRepository.CreateJob(job)
+	//return job, nil
 }
 
 func (js JobsService) UpdateJob(job *models.Job) *models.ResponseError {

@@ -26,7 +26,7 @@ func TestGetJobsResponse(t *testing.T) {
 			AddRow("2", "Marijana", "Komatinovic", 30, true, "Serbia", "01:18:28", "01:18:28"))
 
 	router := initTestRouter(dbHandler)
-	request, _ := http.NewRequest("GET", "/runner", nil)
+	request, _ := http.NewRequest("GET", "/jobs", nil)
 	request.Header.Set("token", "token")
 	recorder := httptest.NewRecorder()
 
@@ -44,13 +44,15 @@ func TestGetJobsResponse(t *testing.T) {
 func initTestRouter(dbHandler *sql.DB) *gin.Engine {
 	jobsRepository := repositories.NewJobsRepository(dbHandler)
 	usersRepository := repositories.NewUsersRepository(dbHandler)
-	jobsService := services.NewJobsService(jobsRepository, nil)
+	weatherRepository := repositories.NewWeatherRepository(dbHandler)
+	jobsService := services.NewJobsService(jobsRepository, weatherRepository)
 	usersServices := services.NewUsersService(usersRepository)
-	jobsController := NewJobsController(jobsService, usersServices)
+	weatherService := services.NewWeatherService(weatherRepository, jobsRepository)
+	jobsController := NewJobsController(jobsService, usersServices, weatherService)
 
 	router := gin.Default()
 
-	router.GET("/job", jobsController.GetJobsBatch)
+	router.GET("/jobs", jobsController.GetJobsBatch)
 
 	return router
 }

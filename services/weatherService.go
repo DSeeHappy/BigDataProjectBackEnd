@@ -60,7 +60,7 @@ func NewWeatherService(weathersRepository *repositories.WeatherRepository,
 
 func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *models.ResponseError) {
 	// request weather data from openweathermap.org
-
+	validateLatLng(lat, lon)
 	var url = "https://pro.openweathermap.org/data/2.5/forecast/climate?lat=" + lat + "&lon=" + lon + "&appid=fcc51394a211b5d91ede128ba9c971e5"
 
 	weather, err := http.Get(url)
@@ -84,6 +84,7 @@ func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *mo
 		log.Println("Error while unmarshalling create result request body", err)
 		return nil, nil
 	}
+
 	weatherData, weatherDataErr := models.MapDTOToWeatherModel(weatherDataResponse)
 	if weatherDataErr != nil {
 		log.Fatalf("Error while mapping weather data: %v", weatherDataErr)
@@ -93,4 +94,15 @@ func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *mo
 
 func (rs WeatherService) DeleteWeather(weatherId string) *models.ResponseError {
 	return nil
+}
+
+func validateLatLng(lat, lon string) *models.ResponseError {
+	if lat != "" || lon != "" {
+		return &models.ResponseError{
+			Message: "Missing latitude or longitude",
+			Status:  http.StatusBadRequest,
+		}
+	} else {
+		return nil
+	}
 }
