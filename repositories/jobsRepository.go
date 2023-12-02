@@ -297,12 +297,12 @@ func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
 
 func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.ResponseError) {
 	query := `
-	SELECT id, address, city, state, zip_code, scheduled_date, scheduled
+	SELECT id, name, address, city, state, zip_code, country, latitude, longitude, scheduled_date, scheduled, is_active, company_id
 	FROM jobs
 	ORDER BY city
 	LIMIT 100`
 
-	rows, err := rr.dbHandler.Query(query, city)
+	rows, err := rr.dbHandler.Query(query)
 	if err != nil {
 		return nil, &models.ResponseError{
 			Message: err.Error(),
@@ -356,16 +356,16 @@ func (rr JobsRepository) GetJobsByCity(city string) ([]*models.Job, *models.Resp
 
 func (rr JobsRepository) GetJobsByZipCode(zipCode string) ([]*models.Job, *models.ResponseError) {
 	query := `
-	SELECT jobs.id, jobs.address, jobs.city, jobs.state, jobs.zip_code, jobs.scheduled_date, jobs.scheduled, weather.job_weather
+	SELECT id, name, address, city, state, zip_code, country, latitude, longitude, scheduled_date, scheduled, is_active, company_id
 	FROM jobs
 	INNER JOIN (
-		SELECT job_id, MIN(weathers) as weather
+		SELECT job_id
 		FROM weathers
-		WHERE year = $1
-		GROUP BY job_id) results
-	ON jobs.id = results.job_id
-	ORDER BY results.weather
-	LIMIT 10`
+		WHERE job_id = $1
+		GROUP BY job_id) job
+	ON jobs.id = job.job_id
+	ORDER BY name 
+	LIMIT 250`
 
 	rows, err := rr.dbHandler.Query(query, zipCode)
 	if err != nil {
@@ -404,7 +404,6 @@ func (rr JobsRepository) GetJobsByZipCode(zipCode string) ([]*models.Job, *model
 			Scheduled:     scheduled.Bool,
 			CompanyID:     companyId.String,
 			IsActive:      isActive.Bool,
-			Weathers:      nil,
 		}
 
 		jobs = append(jobs, job)

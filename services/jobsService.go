@@ -74,10 +74,10 @@ func (js JobsService) GetJob(jobId string) (*models.Job, *models.ResponseError) 
 	return job, nil
 }
 
-func (js JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *models.ResponseError) {
-	if city != "" && state != "" {
+func (js JobsService) GetJobsBatch(city string, zipCode string) ([]*models.Job, *models.ResponseError) {
+	if city != "" && zipCode != "" {
 		return nil, &models.ResponseError{
-			Message: "Only one parameter, city or state, can be passed",
+			Message: "Only one parameter, city or zipCode, can be passed",
 			Status:  http.StatusBadRequest,
 		}
 	}
@@ -86,9 +86,9 @@ func (js JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *m
 		return js.jobsRepository.GetJobsByCity(city)
 	}
 
-	if state != "" {
+	if zipCode != "" {
 
-		return js.jobsRepository.GetJobsByZipCode(state)
+		return js.jobsRepository.GetJobsByZipCode(zipCode)
 	}
 
 	return js.jobsRepository.GetAllJobs()

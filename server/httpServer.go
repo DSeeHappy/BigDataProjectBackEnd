@@ -38,6 +38,7 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 			"message": "Work Weather Scheduler API",
 		})
 	})
+
 	router.POST("/jobs", jobsController.CreateJob)
 	router.PUT("/jobs", jobsController.UpdateJob)
 	router.DELETE("/jobs/:id", jobsController.DeleteJob)
