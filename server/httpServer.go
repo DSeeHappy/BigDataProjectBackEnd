@@ -20,22 +20,22 @@ type HttpServer struct {
 
 func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	jobsRepository := repositories.NewJobsRepository(dbHandler)
-	weathersRepository := repositories.NewWeathersRepository(dbHandler)
+	weatherRepository := repositories.NewWeatherRepository(dbHandler)
 	usersRepository := repositories.NewUsersRepository(dbHandler)
-	jobsService := services.NewJobsService(jobsRepository, weathersRepository)
-	weatherService := services.NewWeatherService(weathersRepository, jobsRepository)
+	jobsService := services.NewJobsService(jobsRepository, weatherRepository)
+	weatherService := services.NewWeatherService(weatherRepository, jobsRepository)
 	usersService := services.NewUsersService(usersRepository)
-	jobsController := controllers.NewJobsController(jobsService, usersService)
+	jobsController := controllers.NewJobsController(jobsService, usersService, weatherService)
 	weatherController := controllers.NewWeatherController(weatherService, usersService)
 	usersController := controllers.NewUsersController(usersService)
 
 	router := gin.Default()
 
-	router.POST("/job", jobsController.CreateJob)
-	router.PUT("/job", jobsController.UpdateJob)
-	router.DELETE("/job/:id", jobsController.DeleteJob)
-	router.GET("/job/:id", jobsController.GetJob)
-	router.GET("/job", jobsController.GetJobsBatch)
+	router.POST("/jobs", jobsController.CreateJob)
+	router.PUT("/jobs", jobsController.UpdateJob)
+	router.DELETE("/jobs/:id", jobsController.DeleteJob)
+	router.GET("/jobs/:id", jobsController.GetJob)
+	router.GET("/jobs", jobsController.GetJobsBatch)
 
 	router.POST("/weather", weatherController.RequestWeather)
 	router.DELETE("/weather/:id", weatherController.DeleteWeather)

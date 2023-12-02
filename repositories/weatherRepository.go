@@ -11,7 +11,7 @@ type WeatherRepository struct {
 	transaction *sql.Tx
 }
 
-func NewWeathersRepository(dbHAndler *sql.DB) *WeatherRepository {
+func NewWeatherRepository(dbHAndler *sql.DB) *WeatherRepository {
 	return &WeatherRepository{
 		dbHandler: dbHAndler,
 	}

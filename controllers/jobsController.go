@@ -18,13 +18,14 @@ const ROLE_ADMIN = "admin"
 const ROLE_JOB = "job"
 
 type JobsController struct {
-	jobsService  *services.JobsService
-	usersService *services.UsersService
+	jobsService    *services.JobsService
+	usersService   *services.UsersService
+	weatherService *services.WeatherService
 }
 
-func NewJobsController(runnersService *services.JobsService, usersService *services.UsersService) *JobsController {
+func NewJobsController(jobsService *services.JobsService, usersService *services.UsersService, weatherService *services.WeatherService) *JobsController {
 	return &JobsController{
-		jobsService:  runnersService,
+		jobsService:  jobsService,
 		usersService: usersService,
 	}
 }
@@ -46,20 +47,26 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 
 	body, err := io.ReadAll(ctx.Request.Body)
 	if err != nil {
-		log.Println("Error while reading create runner request body", err)
+		log.Println("Error while reading create job request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	var runner models.Job
-	err = json.Unmarshal(body, &runner)
+	var job models.Job
+	err = json.Unmarshal(body, &job)
 	if err != nil {
-		log.Println("Error while unmarshalling create runner request body", err)
+		log.Println("Error while unmarshalling create job request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	response, responseErr := rc.jobsService.CreateJob(&runner)
+	weather, weatherErr := rc.weatherService.RequestWeather(job.Latitude, job.Longitude)
+	if weatherErr != nil {
+		log.Fatalf("Error while requesting weather data: %v", weatherErr)
+		return
+	}
+
+	response, responseErr := rc.jobsService.CreateJob(&job, *weather)
 	if responseErr != nil {
 		ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
 		return

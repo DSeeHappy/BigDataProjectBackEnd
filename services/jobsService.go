@@ -18,16 +18,18 @@ func NewJobsService(jobsRepository *repositories.JobsRepository, weatherReposito
 	}
 }
 
-func (rs JobsService) CreateJob(job *models.Job) (*models.Job, *models.ResponseError) {
+func (js JobsService) CreateJob(job *models.Job, weather []models.Weather) (*models.Job, *models.ResponseError) {
 	responseErr := validateJob(job)
 	if responseErr != nil {
 		return nil, responseErr
 	}
 
-	return rs.jobsRepository.CreateJob(job)
+	job.AddWeatherListToJob(weather)
+
+	return js.jobsRepository.CreateJob(job)
 }
 
-func (rs JobsService) UpdateJob(job *models.Job) *models.ResponseError {
+func (js JobsService) UpdateJob(job *models.Job) *models.ResponseError {
 	responseErr := validateJobId(job.ID)
 	if responseErr != nil {
 		return responseErr
@@ -38,30 +40,30 @@ func (rs JobsService) UpdateJob(job *models.Job) *models.ResponseError {
 		return responseErr
 	}
 
-	return rs.jobsRepository.UpdateJob(job)
+	return js.jobsRepository.UpdateJob(job)
 }
 
-func (rs JobsService) DeleteJob(jobId string) *models.ResponseError {
+func (js JobsService) DeleteJob(jobId string) *models.ResponseError {
 	responseErr := validateJobId(jobId)
 	if responseErr != nil {
 		return responseErr
 	}
 
-	return rs.jobsRepository.DeleteJob(jobId)
+	return js.jobsRepository.DeleteJob(jobId)
 }
 
-func (rs JobsService) GetJob(jobId string) (*models.Job, *models.ResponseError) {
+func (js JobsService) GetJob(jobId string) (*models.Job, *models.ResponseError) {
 	responseErr := validateJobId(jobId)
 	if responseErr != nil {
 		return nil, responseErr
 	}
 
-	job, responseErr := rs.jobsRepository.GetJob(jobId)
+	job, responseErr := js.jobsRepository.GetJob(jobId)
 	if responseErr != nil {
 		return nil, responseErr
 	}
 
-	weather, responseErr := rs.weatherRepository.GetAllJobsWeather(jobId)
+	weather, responseErr := js.weatherRepository.GetAllJobsWeather(jobId)
 	if responseErr != nil {
 		return nil, responseErr
 	}
@@ -71,7 +73,7 @@ func (rs JobsService) GetJob(jobId string) (*models.Job, *models.ResponseError) 
 	return job, nil
 }
 
-func (rs JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *models.ResponseError) {
+func (js JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *models.ResponseError) {
 	if city != "" && state != "" {
 		return nil, &models.ResponseError{
 			Message: "Only one parameter, city or state, can be passed",
@@ -80,15 +82,15 @@ func (rs JobsService) GetJobsBatch(city string, state string) ([]*models.Job, *m
 	}
 
 	if city != "" {
-		return rs.jobsRepository.GetJobsByCity(city)
+		return js.jobsRepository.GetJobsByCity(city)
 	}
 
 	if state != "" {
 
-		return rs.jobsRepository.GetJobsByZipCode(state)
+		return js.jobsRepository.GetJobsByZipCode(state)
 	}
 
-	return rs.jobsRepository.GetAllJobs()
+	return js.jobsRepository.GetAllJobs()
 }
 
 func validateJob(job *models.Job) *models.ResponseError {

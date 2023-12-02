@@ -16,3 +16,29 @@ type Job struct {
 	IsActive      bool       `json:"is_active"`
 	Weathers      []*Weather `json:"weather,omitempty"`
 }
+
+func (j *Job) AddWeatherToJob(weather Weather) {
+	j.Weathers = append(j.Weathers, &weather)
+}
+
+func (j *Job) RemoveWeatherFromJob(weather *Weather) {
+	for i, w := range j.Weathers {
+		if w.ID == weather.ID {
+			j.Weathers = append(j.Weathers[:i], j.Weathers[i+1:]...)
+		}
+	}
+}
+
+func (j *Job) UpdateWeatherInJob(weather *Weather) {
+	for i, w := range j.Weathers {
+		if w.ID == weather.ID {
+			j.Weathers[i] = weather
+		}
+	}
+}
+
+func (j *Job) AddWeatherListToJob(weatherList []Weather) {
+	for _, w := range weatherList {
+		j.AddWeatherToJob(w)
+	}
+}
