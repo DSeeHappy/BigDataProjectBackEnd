@@ -66,7 +66,7 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 		ScheduledDate: job.ScheduledDate,
 		Scheduled:     job.Scheduled,
 		IsActive:      job.IsActive,
-		Weathers:      job.Weathers,
+		Weathers:      nil,
 	}, nil
 }
 

@@ -61,16 +61,9 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 		return
 	}
 
-	weather, weatherErr := rc.weatherService.RequestWeather(job.Latitude, job.Longitude)
-	if weatherErr != nil {
-		log.Fatalf("Error while requesting weather data: %v", weatherErr)
-		return
-	}
-
-	response, responseErr := rc.jobsService.CreateJob(&job, *weather)
+	response, responseErr := rc.jobsService.CreateJob(&job)
 	if responseErr != nil {
 		ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
-		//ctx.AbortWithStatusJSON(responseErr.Status, responseErr)
 		return
 	}
 

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -23,6 +22,12 @@ type Weather struct {
 	Icon        string    `json:"icon"`
 	Description string    `json:"description"`
 	Main        string    `json:"main"`
+}
+
+type WeatherInputDTO struct {
+	Lat   string `json:"lat"`
+	Lon   string `json:"lon"`
+	JobID string `json:"job_id"`
 }
 
 type City struct {
@@ -86,15 +91,53 @@ type WeatherDTO struct {
 	Icon        string `json:"icon"`
 }
 
-func MapDTOToWeatherModel(w WeatherResponseDTO) ([]Weather, error) {
+func MapDTOToWeatherModel(w WeatherResponseDTO, jobId string) ([]Weather, error) {
 	var list []Weather
-	if w.List != nil || len(w.List) > 0 {
-		for index, weather := range w.List {
-			fmt.Printf("Weather: %v\n", weather.Weather)
-			fmt.Printf("Temp: %v\n", weather.Temp)
-			fmt.Printf("Sunrise: %.4f\n", weather.Sunrise)
-			fmt.Printf("Sunset: %.4f\n", weather.Sunset)
-			fmt.Printf("index: %v\n", index)
+	if w.List != nil || len(w.List) > 0 && len(w.List) > 1 {
+		for index := range w.List {
+			//fmt.Printf("Weather: %v\n", weather.Weather)
+			//fmt.Printf("Temp: %v\n", weather.Temp)
+			//fmt.Printf("Sunrise: %.4f\n", weather.Sunrise)
+			//fmt.Printf("Sunset: %.4f\n", weather.Sunset)
+			//fmt.Printf("index: %v\n", index)
+			list = append(list, Weather{
+				JobID:       jobId,
+				Main:        w.List[index].Weather[0].Main,
+				Description: w.List[index].Weather[0].Description,
+				Icon:        w.List[index].Weather[0].Icon,
+				Pressure:    w.List[index].Pressure,
+				Humidity:    w.List[index].Humidity,
+				Sunrise:     w.List[index].Sunrise,
+				Sunset:      w.List[index].Sunset,
+				Speed:       w.List[index].Speed,
+				Deg:         w.List[index].Deg,
+				Clouds:      w.List[index].Clouds,
+				Rain:        w.List[index].Rain,
+				Snow:        w.List[index].Snow,
+				City: City{
+					ID:         w.City.ID,
+					Name:       w.City.Name,
+					LatLng:     w.City.LatLng,
+					Country:    w.City.Country,
+					Timezone:   w.City.Timezone,
+					Population: w.City.Population,
+				},
+
+				Temp: Temp{
+					Day:   w.List[index].Temp.Day,
+					Min:   w.List[index].Temp.Min,
+					Max:   w.List[index].Temp.Max,
+					Night: w.List[index].Temp.Night,
+					Eve:   w.List[index].Temp.Eve,
+					Morn:  w.List[index].Temp.Morn,
+				},
+				FeelsLike: FeelsLike{
+					Day:   w.List[index].FeelsLike.Day,
+					Night: w.List[index].FeelsLike.Night,
+					Eve:   w.List[index].FeelsLike.Eve,
+					Morn:  w.List[index].FeelsLike.Morn,
+				},
+			})
 		}
 	} else {
 		log.Fatalf("Error while mapping weather data: %v", w)

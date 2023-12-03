@@ -58,7 +58,7 @@ func NewWeatherService(weathersRepository *repositories.WeatherRepository,
 //	return &weatherData, nil
 //}
 
-func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *models.ResponseError) {
+func (rs WeatherService) RequestWeather(lat, lon, jobId string) (*[]models.Weather, *models.ResponseError) {
 	// request weather data from openweathermap.org
 	validateLatLng(lat, lon)
 	var url = "https://pro.openweathermap.org/data/2.5/forecast/climate?lat=" + lat + "&lon=" + lon + "&appid=fcc51394a211b5d91ede128ba9c971e5"
@@ -67,6 +67,14 @@ func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *mo
 	if err != nil {
 		log.Fatalf("Error while requesting weather data: %v", err)
 		return nil, nil
+	}
+
+	transactionErr := repositories.BeginTransaction(rs.jobsRepository, rs.weatherRepository)
+	if transactionErr != nil {
+		return nil, &models.ResponseError{
+			Message: "Failed to start transaction",
+			Status:  http.StatusBadRequest,
+		}
 	}
 
 	// validation
@@ -85,11 +93,32 @@ func (rs WeatherService) RequestWeather(lat, lon string) (*[]models.Weather, *mo
 		return nil, nil
 	}
 
-	weatherData, weatherDataErr := models.MapDTOToWeatherModel(weatherDataResponse)
+	weatherData, weatherDataErr := models.MapDTOToWeatherModel(weatherDataResponse, jobId)
 	if weatherDataErr != nil {
 		log.Fatalf("Error while mapping weather data: %v", weatherDataErr)
 	}
-	return &weatherData, nil
+
+	response, responseErr := rs.weatherRepository.CreateWeather(weatherData)
+	if responseErr != nil {
+		err := repositories.RollbackTransaction(rs.jobsRepository, rs.weatherRepository)
+		if err != nil {
+			return nil, &models.ResponseError{
+				Message: "Rollback Error: Weather Data not saved" + err.Error(),
+				Status:  http.StatusInternalServerError,
+			}
+		}
+		return nil, responseErr
+	}
+
+	err = repositories.CommitTransaction(rs.jobsRepository, rs.weatherRepository)
+	if err != nil {
+		return nil, &models.ResponseError{
+			Message: "Commit Error: Weather Data not saved" + err.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	return response, nil
 }
 
 func (rs WeatherService) DeleteWeather(weatherId string) *models.ResponseError {

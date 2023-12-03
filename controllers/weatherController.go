@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"Backend/models"
 	"Backend/services"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"io"
+	"log"
 	"net/http"
 )
 
@@ -33,18 +37,26 @@ func (rc WeatherController) RequestWeather(ctx *gin.Context) {
 	//	return
 	//}
 
-	//var weather http.Response
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		log.Println("Error while reading create result request body", err)
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
-	// read response body
-	//
-	//weatherResponse, errWeather := rc.weatherService.RequestWeather(&weather)
-	//if errWeather != nil {
-	//	log.Fatalf("Error while reading weather response body %v", errWeather)
-	//	return
-	//}
-	//
-	//ctx.JSON(http.StatusOK, weatherResponse)
-	ctx.Status(http.StatusNoContent)
+	var weather models.WeatherInputDTO
+	err = json.Unmarshal(body, &weather)
+
+	//read response body
+
+	weatherResponse, errWeather := rc.weatherService.RequestWeather(weather.Lat, weather.Lon, weather.JobID)
+	if errWeather != nil {
+		log.Fatalf("Error while reading weather response body %v", errWeather)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, weatherResponse)
+	//ctx.Status(http.StatusNoContent)
 
 }
 

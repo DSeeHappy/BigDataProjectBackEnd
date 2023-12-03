@@ -18,16 +18,36 @@ func NewJobsService(jobsRepository *repositories.JobsRepository, weatherReposito
 	}
 }
 
-func (js JobsService) CreateJob(job *models.Job, weather []models.Weather) (*models.Job, *models.ResponseError) {
+func (js JobsService) CreateJob(job *models.Job) (*models.Job, *models.ResponseError) {
 	responseErr := validateJob(job)
 	if responseErr != nil {
 		return nil, responseErr
 	}
 
-	job.AddWeatherListToJob(weather)
+	transactionErr := repositories.BeginTransaction(js.jobsRepository, js.weatherRepository)
+	if transactionErr != nil {
+		return nil, &models.ResponseError{
+			Message: "Failed to start transaction",
+			Status:  http.StatusBadRequest,
+		}
+	}
 
-	return js.jobsRepository.CreateJob(job)
-	//return job, nil
+	jobWithWeather, err := js.jobsRepository.CreateJob(job)
+
+	if err != nil {
+		repositories.RollbackTransaction(js.jobsRepository, js.weatherRepository)
+		return nil, err
+	}
+
+	commitErr := repositories.CommitTransaction(js.jobsRepository, js.weatherRepository)
+	if commitErr != nil {
+		return nil, &models.ResponseError{
+			Message: "Commit Error: Job Data not saved" + commitErr.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	return jobWithWeather, responseErr
 }
 
 func (js JobsService) UpdateJob(job *models.Job) *models.ResponseError {
@@ -42,6 +62,26 @@ func (js JobsService) UpdateJob(job *models.Job) *models.ResponseError {
 	}
 
 	return js.jobsRepository.UpdateJob(job)
+}
+
+func (js JobsService) UpdateJobWeather(job *models.Job, weather []models.Weather) (*models.Job, *models.ResponseError) {
+	jobWithWeather, err := js.jobsRepository.CreateJob(job)
+	jobWithWeather.AddWeatherListToJob(weather)
+
+	if err != nil {
+		repositories.RollbackTransaction(js.jobsRepository, js.weatherRepository)
+		return nil, err
+	}
+
+	commitErr := repositories.CommitTransaction(js.jobsRepository, js.weatherRepository)
+	if commitErr != nil {
+		return nil, &models.ResponseError{
+			Message: "Commit Error: Job Data not saved" + commitErr.Error(),
+			Status:  http.StatusInternalServerError,
+		}
+	}
+
+	return jobWithWeather, nil
 }
 
 func (js JobsService) DeleteJob(jobId string) *models.ResponseError {

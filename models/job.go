@@ -1,5 +1,7 @@
 package models
 
+import "log"
+
 type Job struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
@@ -18,6 +20,7 @@ type Job struct {
 }
 
 func (j *Job) AddWeatherToJob(weather Weather) {
+	log.Printf("Adding weather to job: %v", weather)
 	j.Weathers = append(j.Weathers, &weather)
 }
 
