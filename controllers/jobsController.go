@@ -192,7 +192,7 @@ func (rc JobsController) GetJobsBatch(ctx *gin.Context) {
 
 	params := ctx.Request.URL.Query()
 	city := params.Get("city")
-	state := params.Get("state")
+	state := params.Get("zipCode")
 
 	response, responseErr := rc.jobsService.GetJobsBatch(city, state)
 	if responseErr != nil {

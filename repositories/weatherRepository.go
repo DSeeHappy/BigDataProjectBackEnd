@@ -19,7 +19,7 @@ func NewWeatherRepository(dbHAndler *sql.DB) *WeatherRepository {
 
 func (rr WeatherRepository) CreateWeather(result []models.Weather) (*[]models.Weather, *models.ResponseError) {
 	var weather []models.Weather
-	for _, w := range result {
+	for index, w := range result {
 		query := `
 		INSERT INTO weathers(job_id, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow, icon, description, main, latitude, longitude, city_name, city_id, country, time_zone, population, temp_day, temp_min, temp_max, temp_night, temp_eve, temp_morn, feels_like_day, feels_like_night, feels_like_eve, feels_like_morn)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
@@ -50,6 +50,7 @@ func (rr WeatherRepository) CreateWeather(result []models.Weather) (*[]models.We
 			}
 		}
 		weather = append(weather, w)
+		weather[index].ID = resultId
 	}
 
 	return &weather, nil
