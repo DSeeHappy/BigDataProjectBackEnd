@@ -22,7 +22,7 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 	query := `
 		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10, 'false', 'true')
-		RETURNING id`
+		RETURNING name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active`
 
 	rows, err := rr.dbHandler.Query(query, job.Name, job.Address, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.CompanyID, job.ScheduledDate)
 	if err != nil {
@@ -35,8 +35,10 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 	defer rows.Close()
 
 	var jobId string
+	var name, address, city, state, zip_code, country, latitude, longitude, company_id, scheduled_date sql.NullString
+	var scheduled, is_active sql.NullBool
 	for rows.Next() {
-		err := rows.Scan(&jobId)
+		err := rows.Scan(&jobId, &name, &address, &city, &state, &zip_code, &country, &latitude, &longitude, &company_id, &scheduled_date, &scheduled, &is_active)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -54,18 +56,18 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 
 	return &models.Job{
 		ID:            jobId,
-		Name:          job.Name,
-		Address:       job.Address,
-		City:          job.City,
-		State:         job.State,
-		ZipCode:       job.ZipCode,
-		Country:       job.Country,
-		Latitude:      job.Latitude,
-		Longitude:     job.Longitude,
-		CompanyID:     job.CompanyID,
-		ScheduledDate: job.ScheduledDate,
-		Scheduled:     job.Scheduled,
-		IsActive:      job.IsActive,
+		Name:          name.String,
+		Address:       address.String,
+		City:          city.String,
+		State:         state.String,
+		ZipCode:       zip_code.String,
+		Country:       country.String,
+		Latitude:      latitude.String,
+		Longitude:     longitude.String,
+		CompanyID:     company_id.String,
+		ScheduledDate: scheduled_date.String,
+		Scheduled:     scheduled.Bool,
+		IsActive:      is_active.Bool,
 		Weathers:      nil,
 	}, nil
 }
@@ -238,9 +240,7 @@ func (rr JobsRepository) GetJob(jobId string) (*models.Job, *models.ResponseErro
 }
 
 func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
-	query := `
-	SELECT *
-	FROM jobs`
+	query := `SELECT * FROM jobs`
 
 	rows, err := rr.dbHandler.Query(query)
 	if err != nil {
@@ -257,10 +257,10 @@ func (rr JobsRepository) GetAllJobs() ([]*models.Job, *models.ResponseError) {
 	var scheduled, isActive sql.NullBool
 
 	for rows.Next() {
-		err := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
-		if err != nil {
+		rowErr := rows.Scan(&id, &name, &address, &city, &state, &zipCode, &country, &latitude, &longitude, &scheduledDate, &scheduled, &isActive, &companyId)
+		if rowErr != nil {
 			return nil, &models.ResponseError{
-				Message: err.Error(),
+				Message: rowErr.Error(),
 				Status:  http.StatusInternalServerError,
 			}
 		}

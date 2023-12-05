@@ -9,7 +9,7 @@ type Job struct {
 	Address       string     `json:"address"`
 	City          string     `json:"city"`
 	State         string     `json:"state"`
-	ZipCode       string     `json:"zipCode"`
+	ZipCode       string     `json:"zip_code"`
 	Country       string     `json:"country"`
 	Latitude      string     `json:"latitude"`
 	Longitude     string     `json:"longitude""`
