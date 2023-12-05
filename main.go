@@ -11,16 +11,16 @@ func main() {
 	log.Println("Starting Jobs App")
 
 	log.Println("Initializing configuration")
-	config := config.InitConfig(getConfigFileName())
+	initConfig := config.InitConfig(getConfigFileName())
 
 	log.Println("Initializing database")
-	dbHandler := server.InitDatabase(config)
+	dbHandler := server.InitDatabase(initConfig)
 
 	log.Println("Initializing Prometheus")
 	go server.InitPrometheus()
 
 	log.Println("Initializing HTTP sever")
-	httpServer := server.InitHttpServer(config, dbHandler)
+	httpServer := server.InitHttpServer(initConfig, dbHandler)
 
 	httpServer.Start()
 }
