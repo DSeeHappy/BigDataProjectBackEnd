@@ -32,7 +32,7 @@ func TestCreateJob(t *testing.T) {
 		sqlmock.NewRows(columns).
 			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "1", "", "false", "true"))
 
-	router := initTestRouter(dbHandler)
+	router := testRouter(dbHandler)
 	var job = models.Job{
 		Name:      "Winter Weather",
 		CompanyID: "1",
@@ -82,7 +82,7 @@ func TestGetAllJobsResponse(t *testing.T) {
 			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1").
 			AddRow("2", "Work Day", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1"))
 
-	router := initTestRouter(dbHandler)
+	router := testRouter(dbHandler)
 	request, err := http.NewRequest("GET", "/jobs", nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
@@ -118,7 +118,7 @@ func TestDeleteJobResponse(t *testing.T) {
 		sqlmock.NewRows(columns).
 			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1"))
 
-	router := initTestRouter(dbHandler)
+	router := testRouter(dbHandler)
 	request, err := http.NewRequest("DELETE", "/jobs/1", nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
@@ -156,7 +156,7 @@ func TestSanity(t *testing.T) {
 			AddRow("1", "Winter Weather", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true").
 			AddRow("2", "Work Day", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true"))
 
-	router := initTestRouter(dbHandler)
+	router := testRouter(dbHandler)
 	request, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
@@ -178,7 +178,7 @@ func TestSanity(t *testing.T) {
 	assert.Equal(t, "Work Weather Scheduler API", jobs)
 }
 
-func initTestRouter(dbHandler *sql.DB) *gin.Engine {
+func testRouter(dbHandler *sql.DB) *gin.Engine {
 	jobsRepository := repositories.NewJobsRepository(dbHandler)
 	usersRepository := repositories.NewUsersRepository(dbHandler)
 	weatherRepository := repositories.NewWeatherRepository(dbHandler)
