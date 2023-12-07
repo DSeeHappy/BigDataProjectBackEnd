@@ -1,7 +1,6 @@
-package tests
+package controllers
 
 import (
-	"Backend/controllers"
 	"Backend/models"
 	"Backend/repositories"
 	"Backend/services"
@@ -187,9 +186,9 @@ func testRouter(dbHandler *sql.DB) *gin.Engine {
 	usersServices := services.NewUsersService(usersRepository)
 	weatherService := services.NewWeatherService(weatherRepository, jobsRepository)
 
-	jobsController := controllers.NewJobsController(jobsService, usersServices, weatherService)
-	weatherController := controllers.NewWeatherController(weatherService, usersServices)
-	usersController := controllers.NewUsersController(usersServices)
+	jobsController := NewJobsController(jobsService, usersServices, weatherService)
+	weatherController := NewWeatherController(weatherService, usersServices)
+	usersController := NewUsersController(usersServices)
 
 	router := gin.Default()
 

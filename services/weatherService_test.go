@@ -1,8 +1,7 @@
-package tests
+package services
 
 import (
 	"Backend/models"
-	"Backend/services"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func TestValidateJob(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			responseErr := services.ValidateJob(test.runner)
+			responseErr := ValidateJob(test.runner)
 			assert.Equal(t, test.want, responseErr)
 		})
 	}
