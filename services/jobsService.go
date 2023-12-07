@@ -32,13 +32,13 @@ func (js JobsService) CreateJob(job *models.Job) (*models.Job, *models.ResponseE
 	return jobWithWeather, responseErr
 }
 
-func (js JobsService) UpdateJob(job *models.Job) *models.ResponseError {
+func (js JobsService) UpdateJob(job *models.JobUpdate) *models.ResponseError {
 	responseErr := ValidateJobId(job.ID)
 	if responseErr != nil {
 		return responseErr
 	}
 
-	responseErr = ValidateJob(job)
+	//responseErr = ValidateJobUpdate(job)
 	if responseErr != nil {
 		return responseErr
 	}
@@ -117,6 +117,7 @@ func (js JobsService) GetJobsBatch(city string, zipCode string) ([]*models.Job, 
 }
 
 func ValidateJob(job *models.Job) *models.ResponseError {
+
 	if job.Name == "" {
 		return &models.ResponseError{
 			Message: "Invalid name",
@@ -131,6 +132,30 @@ func ValidateJob(job *models.Job) *models.ResponseError {
 	}
 
 	if job.ZipCode == "" {
+		return &models.ResponseError{
+			Message: "Invalid Zip Code",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	return nil
+}
+func ValidateJobUpdate(job *models.JobUpdate) *models.ResponseError {
+
+	if job.Name == nil {
+		return &models.ResponseError{
+			Message: "Invalid name",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	if job.State == nil {
+		return &models.ResponseError{
+			Message: "Invalid state",
+			Status:  http.StatusBadRequest}
+	}
+
+	if job.ZipCode == nil {
 		return &models.ResponseError{
 			Message: "Invalid Zip Code",
 			Status:  http.StatusBadRequest,

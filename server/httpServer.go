@@ -42,7 +42,7 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	})
 
 	router.POST("/jobs", jobsController.CreateJob)
-	router.PUT("/jobs", jobsController.UpdateJob)
+	router.PUT("/jobs/:id", jobsController.UpdateJob)
 	router.DELETE("/jobs/:id", jobsController.DeleteJob)
 	router.GET("/jobs/:id", jobsController.GetJob)
 	router.GET("/jobs", jobsController.GetJobsBatch)

@@ -4,8 +4,6 @@ import (
 	"Backend/metrics"
 	"Backend/models"
 	"Backend/services"
-	"encoding/json"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -96,20 +94,34 @@ func (rc JobsController) UpdateJob(ctx *gin.Context) {
 	//	return
 	//}
 
-	body, err := io.ReadAll(ctx.Request.Body)
+	id := ctx.Param("id")
+
+	var job models.JobUpdate
+
+	err := ctx.ShouldBind(&job)
 	if err != nil {
-		log.Println("Error while reading update job request body", err)
+		log.Println("Error while binding update job request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	var job models.Job
-	err = json.Unmarshal(body, &job)
-	if err != nil {
-		log.Println("Error while unmarshalling update job request body", err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	job.ID = id
+	log.Printf("Job: %v", job)
+
+	//body, err := io.ReadAll(ctx.Request.Body)
+	//if err != nil {
+	//	log.Println("Error while reading update job request body", err)
+	//	ctx.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
+	//
+	//var job models.Job
+	//err = json.Unmarshal(body, &job)
+	//if err != nil {
+	//	log.Println("Error while unmarshalling update job request body", err)
+	//	ctx.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
 
 	responseErr := rc.jobsService.UpdateJob(&job)
 	if responseErr != nil {

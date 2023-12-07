@@ -3,7 +3,10 @@ package repositories
 import (
 	"Backend/models"
 	"database/sql"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type JobsRepository struct {
@@ -72,23 +75,81 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 	}, nil
 }
 
-func (rr JobsRepository) UpdateJob(job *models.Job) *models.ResponseError {
-	query := `
-		UPDATE jobs
-		SET
-		    			name = $1,
-		    			address = $2,
-		    			city = $3,
-		    			state = $4,
-		    			zip_code = $5,
-		    			country = $6,
-		    			latitude = $7,
-		    			longitude = $8,
-		    			scheduled_date = $9,
-		    			scheduled = $10,
-		    			is_active = $11
-		WHERE id = $12`
-	res, err := rr.dbHandler.Exec(query, job.Name, job.Address, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.ScheduledDate, job.Scheduled, job.IsActive, job.ID)
+func (rr JobsRepository) UpdateJob(job *models.JobUpdate) *models.ResponseError {
+	query := "UPDATE jobs SET "
+	var updates []string
+	var params []interface{}
+	if job.Name != nil {
+		updates = append(updates, "name = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Name)
+	}
+	if job.Address != nil {
+		updates = append(updates, "address = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Address)
+	}
+	if job.City != nil {
+		updates = append(updates, "city = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.City)
+	}
+
+	if job.State != nil {
+		updates = append(updates, "state = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.State)
+	}
+
+	if job.ZipCode != nil {
+		updates = append(updates, "zip_code = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.ZipCode)
+	}
+
+	if job.Country != nil {
+		updates = append(updates, "country = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Country)
+	}
+
+	if job.Latitude != nil {
+		updates = append(updates, "latitude = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Latitude)
+	}
+
+	if job.Longitude != nil {
+		updates = append(updates, "longitude = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Longitude)
+	}
+
+	if job.ScheduledDate != nil {
+		updates = append(updates, "scheduled_date = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.ScheduledDate)
+	}
+
+	if job.Scheduled != nil {
+		updates = append(updates, "scheduled = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.Scheduled)
+	}
+
+	if job.IsActive != nil {
+		updates = append(updates, "is_active = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.IsActive)
+	}
+
+	if job.CompanyID != nil {
+		updates = append(updates, "company_id = $"+strconv.Itoa(len(updates)+1))
+		params = append(params, job.CompanyID)
+	}
+
+	if len(updates) == 0 {
+		return &models.ResponseError{
+			Message: "No updates provided",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	query += strings.Join(updates, ", ") + " WHERE id = $" + strconv.Itoa(len(updates)+1)
+	params = append(params, job.ID)
+	log.Printf("Query: %s\n", query)
+	log.Printf("Params: %v\n", params)
+
+	res, err := rr.dbHandler.Exec(query, params...)
 	if err != nil {
 		return &models.ResponseError{
 			Message: err.Error(),
@@ -114,7 +175,7 @@ func (rr JobsRepository) UpdateJob(job *models.Job) *models.ResponseError {
 	return nil
 }
 
-func (rr JobsRepository) UpdateJobResults(job *models.Job) *models.ResponseError {
+func (rr JobsRepository) UpdateJobWeather(job *models.Job) *models.ResponseError {
 	query := `
 		UPDATE jobs
 		SET
