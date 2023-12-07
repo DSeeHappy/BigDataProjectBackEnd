@@ -2,11 +2,33 @@
 ### Juan Daniel Sanchez Chavez
 
 
+# Overview
+This project allows a user to create a job which includes a location.
+The server would obtain the weather from OpenWeatherMap API and store it in the database.
+You would then be able to update the job to schedule based on the 30-day forecast of that location.
+
+The idea would be if you are planning on creating your work schedule for the next month,
+you would be able to see the weather for the next 30 days and schedule your work accordingly.
+
+If this project were to be extended further, the objective would be to track and be notified of weather changes.
+Helping the user make sure they don't schedule work when there is a major weather event, useful for outdoor jobs.
+Plans would be to include test message, email notification or device notification if extended further beyond project scope.
+
 # Setup
 
 Start the server with docker-compose
 Initiates go server, postgres db, prometheus, grafana, rabbitmq
 ```bash
 docker-compose up
+```
+
+# Setup DB
+navigate to dbscripts and select public_schema.sql
+run the script in the postgres db to create the tables
+
+# Testing
+To test the server, run the following command
+```bash
+go test ./...
 ```
 
