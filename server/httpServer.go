@@ -33,6 +33,8 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 
 	router := gin.Default()
 
+	router.Use(corsMiddleware())
+
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
 			"message": "Work Weather Scheduler API",
@@ -60,7 +62,21 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	}
 }
 
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Token")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
+
 func (hs HttpServer) Start() {
+
 	err := hs.router.Run(hs.config.GetString("http.server_address"))
 	if err != nil {
 		log.Fatalf("Error while starting HTTP server: %v", err)
