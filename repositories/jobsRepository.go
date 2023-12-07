@@ -22,7 +22,7 @@ func (rr JobsRepository) CreateJob(job *models.Job) (*models.Job, *models.Respon
 	query := `
 		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10, 'false', 'true')
-		RETURNING name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active`
+		RETURNING id, name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active`
 
 	rows, err := rr.dbHandler.Query(query, job.Name, job.Address, job.City, job.State, job.ZipCode, job.Country, job.Latitude, job.Longitude, job.CompanyID, job.ScheduledDate)
 	if err != nil {

@@ -45,21 +45,32 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 	//	ctx.Status(http.StatusUnauthorized)
 	//	return
 	//}
-
-	body, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
-		log.Println("Error while reading create job request body", err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
 	var job models.Job
-	err = json.Unmarshal(body, &job)
+
+	err := ctx.ShouldBind(&job)
 	if err != nil {
-		log.Println("Error while unmarshalling create job request body", err)
+		log.Println("Error while binding create job request body", err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+
+	log.Printf("Job: %v", job)
+
+	//
+	//body, err := io.ReadAll(ctx.Request.Body)
+	//if err != nil {
+	//	log.Println("Error while reading create job request body", err)
+	//	ctx.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
+	//
+	//var job models.Job
+	//err = json.Unmarshal(body, &job)
+	//if err != nil {
+	//	log.Println("Error while unmarshalling create job request body", err)
+	//	ctx.AbortWithError(http.StatusInternalServerError, err)
+	//	return
+	//}
 
 	response, responseErr := rc.jobsService.CreateJob(&job)
 	if responseErr != nil {

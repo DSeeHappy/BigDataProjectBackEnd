@@ -47,6 +47,6 @@ The server is deployed to AWS using ECS
 The server is deployed using a docker image
 The docker image is built using the Dockerfile
 
-GitHub actions is used to build the docker image and push it to AWS ECR
-GitHub actions is also used to deploy the docker image to AWS ECS
+JetBrains Space Packages is used to build the docker image and push it to JetBrains Space Container Registry
+JetBrains Space Container Registry is also used to deploy the docker image to AWS ECS
 
