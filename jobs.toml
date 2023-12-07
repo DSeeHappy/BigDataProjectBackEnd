@@ -18,3 +18,9 @@ driver_name = "postgres"
 
 server_address = ":8080"
 ###############################################################################
+# RabbitMQ configuration
+
+[rabbitmq]
+
+rabbitmq_instance_type = "publisher"
+rabbitmq_url = "amqp://guest:guest@localhost:5672/"
