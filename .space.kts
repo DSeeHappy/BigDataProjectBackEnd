@@ -18,7 +18,7 @@ job("Build and push Docker") {
             // path to Dockerfile relative to project root
             // if 'file' is not specified, Docker will look for it in 'context'/Dockerfile
 
-            val spaceRepo = "dseehappy.registry.jetbrains.space/p/prjkey/mydocker/myimage"
+            val spaceRepo = "dseehappy.registry.jetbrains.space/p/cu/big-data-backend-container/myimage:latest"
             // image tags for 'docker push'
             tags {
                 +"$spaceRepo:1.0.${"$"}JB_SPACE_EXECUTION_NUMBER"
