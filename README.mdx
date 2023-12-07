@@ -27,8 +27,26 @@ navigate to dbscripts and select public_schema.sql
 run the script in the postgres db to create the tables
 
 # Testing
+Unit testing can be run without any docker containers running
+
+Integration testing requires the docker containers to be running
+
 To test the server, run the following command
 ```bash
 go test ./...
 ```
+
+# Health monitoring
+Prometheus is used to monitor the health of the server
+Grafana is used to visualize the metrics
+
+The health monitoring tracks metrics for job and weather api calls
+
+# Deployment
+The server is deployed to AWS using ECS
+The server is deployed using a docker image
+The docker image is built using the Dockerfile
+
+GitHub actions is used to build the docker image and push it to AWS ECR
+GitHub actions is also used to deploy the docker image to AWS ECS
 
