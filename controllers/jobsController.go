@@ -4,6 +4,7 @@ import (
 	"Backend/metrics"
 	"Backend/models"
 	"Backend/services"
+	"github.com/kelvins/geocoder"
 	"log"
 	"net/http"
 	"strconv"
@@ -53,6 +54,33 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 	}
 
 	log.Printf("Job: %v", job)
+
+	if job.Latitude == "" || job.Longitude == "" {
+		//var number int
+		//var convErr error
+		var address geocoder.Address
+
+		// Geocoding for lat/lon values of location
+		address = geocoder.Address{
+			Street:     job.Address,
+			City:       job.City,
+			State:      job.State,
+			PostalCode: job.ZipCode,
+			Country:    job.Country,
+		}
+		log.Printf("Address: %v", address)
+
+		location, geocodeErr := geocoder.Geocoding(address)
+		if geocodeErr != nil {
+			log.Println("Error while geocoding address", geocodeErr)
+			ctx.AbortWithError(http.StatusInternalServerError, geocodeErr)
+			return
+		}
+
+		job.Latitude = strconv.FormatFloat(location.Latitude, 'f', 6, 64)
+		job.Longitude = strconv.FormatFloat(location.Longitude, 'f', 6, 64)
+
+	}
 
 	//
 	//body, err := io.ReadAll(ctx.Request.Body)
