@@ -28,7 +28,7 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	usersService := services.NewUsersService(usersRepository)
 
 	jobsController := controllers.NewJobsController(jobsService, usersService, weatherService)
-	weatherController := controllers.NewWeatherController(weatherService, usersService)
+	weatherController := controllers.NewWeatherController(weatherService, jobsService, usersService)
 	usersController := controllers.NewUsersController(usersService)
 
 	router := gin.Default()
@@ -48,6 +48,7 @@ func InitHttpServer(config *viper.Viper, dbHandler *sql.DB) HttpServer {
 	router.GET("/jobs", jobsController.GetJobsBatch)
 
 	router.POST("/weather", weatherController.RequestWeather)
+	router.GET("/weather/:id", weatherController.GetWeather)
 	router.DELETE("/weather/:id", weatherController.DeleteWeather)
 
 	router.POST("/login", usersController.Login)
