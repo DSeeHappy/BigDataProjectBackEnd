@@ -121,6 +121,27 @@ func (rs WeatherService) RequestWeather(lat, lon, jobId string) (*[]models.Weath
 	return response, nil
 }
 
+func (rs WeatherService) GetJobWithWeather(jobId string) (*models.Job, *models.ResponseError) {
+	responseErr := ValidateJobId(jobId)
+	if responseErr != nil {
+		return nil, responseErr
+	}
+
+	job, responseErr := rs.jobsRepository.GetJob(jobId)
+	if responseErr != nil {
+		return nil, responseErr
+	}
+
+	weather, responseErr := rs.weatherRepository.GetAllJobsWeather(jobId)
+	if responseErr != nil {
+		return nil, responseErr
+	}
+
+	job.Weathers = weather
+
+	return job, nil
+}
+
 func (rs WeatherService) DeleteWeather(weatherId string) *models.ResponseError {
 	return nil
 }

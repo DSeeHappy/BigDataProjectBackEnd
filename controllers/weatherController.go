@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Backend/metrics"
 	"Backend/models"
 	"Backend/services"
 	"encoding/json"
@@ -8,18 +9,21 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type WeatherController struct {
 	weatherService *services.WeatherService
+	jobService     *services.JobsService
 	usersService   *services.UsersService
 }
 
-func NewWeatherController(resultsService *services.WeatherService,
+func NewWeatherController(weatherService *services.WeatherService, jobService *services.JobsService,
 	userService *services.UsersService) *WeatherController {
 
 	return &WeatherController{
-		weatherService: resultsService,
+		weatherService: weatherService,
+		jobService:     jobService,
 		usersService:   userService,
 	}
 }
@@ -47,9 +51,15 @@ func (rc WeatherController) RequestWeather(ctx *gin.Context) {
 	var weather models.WeatherInputDTO
 	err = json.Unmarshal(body, &weather)
 
+	var latitude = strconv.FormatFloat(weather.Lat, 'f', 6, 64)
+	var longitude = strconv.FormatFloat(weather.Lon, 'f', 6, 64)
+
+	log.Printf("Latitude: %v", latitude)
+	log.Printf("Longitude: %v", longitude)
+
 	//read response body
 
-	weatherResponse, errWeather := rc.weatherService.RequestWeather(weather.Lat, weather.Lon, weather.JobID)
+	weatherResponse, errWeather := rc.weatherService.RequestWeather(latitude, longitude, weather.JobID)
 	if errWeather != nil {
 		log.Fatalf("Error while reading weather response body %v", errWeather)
 		return
@@ -58,6 +68,38 @@ func (rc WeatherController) RequestWeather(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, weatherResponse)
 	//ctx.Status(http.StatusNoContent)
 
+}
+
+func (rc WeatherController) GetWeather(ctx *gin.Context) {
+	metrics.HttpRequestsCounter.Inc()
+
+	//accessToken := ctx.Request.Header.Get("Token")
+	//auth, responseErr := rc.usersService.AuthorizeUser(accessToken, []string{ROLE_ADMIN, ROLE_JOB})
+	//if responseErr != nil {
+	//	metrics.GetJobHttpResponsesCounter.WithLabelValues(
+	//		strconv.Itoa(responseErr.Status)).Inc()
+	//	ctx.JSON(responseErr.Status, responseErr)
+	//	return
+	//}
+	//
+	//if !auth {
+	//	metrics.GetJobHttpResponsesCounter.WithLabelValues("401").Inc()
+	//	ctx.Status(http.StatusUnauthorized)
+	//	return
+	//}
+
+	jobId := ctx.Param("id")
+
+	response, weatherResponseErr := rc.weatherService.GetJobWithWeather(jobId)
+	if weatherResponseErr != nil {
+		metrics.GetJobHttpResponsesCounter.WithLabelValues(
+			strconv.Itoa(weatherResponseErr.Status)).Inc()
+		ctx.JSON(weatherResponseErr.Status, weatherResponseErr)
+		return
+	}
+
+	metrics.GetJobHttpResponsesCounter.WithLabelValues("200").Inc()
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (rc WeatherController) DeleteWeather(ctx *gin.Context) {
