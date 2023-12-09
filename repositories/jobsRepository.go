@@ -291,7 +291,7 @@ func (rr JobsRepository) GetJob(jobId string) (*models.Job, *models.ResponseErro
 		State:         state.String,
 		ZipCode:       zipCode.String,
 		Country:       country.String,
-		Latitude:      country.String,
+		Latitude:      latitude.String,
 		Longitude:     longitude.String,
 		ScheduledDate: scheduledDate.String,
 		Scheduled:     scheduled.Bool,
