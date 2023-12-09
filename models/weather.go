@@ -7,6 +7,7 @@ import (
 type Weather struct {
 	ID          string    `json:"id"`
 	JobID       string    `json:"job_id"`
+	Dt          float32   `json:"dt"`
 	City        City      `json:"city"`
 	Temp        Temp      `json:"temp"`
 	FeelsLike   FeelsLike `json:"feels_like"`
@@ -28,6 +29,12 @@ type WeatherInputDTO struct {
 	Lat   float64 `json:"lat"`
 	Lon   float64 `json:"lon"`
 	JobID string  `json:"job_id"`
+}
+
+type WeatherInputDTOString struct {
+	Lat   string `json:"lat"`
+	Lon   string `json:"lon"`
+	JobID string `json:"job_id"`
 }
 
 type City struct {
@@ -95,13 +102,9 @@ func MapDTOToWeatherModel(w WeatherResponseDTO, jobId string) ([]Weather, error)
 	var list []Weather
 	if w.List != nil || len(w.List) > 0 && len(w.List) > 1 {
 		for index := range w.List {
-			//fmt.Printf("Weather: %v\n", weather.Weather)
-			//fmt.Printf("Temp: %v\n", weather.Temp)
-			//fmt.Printf("Sunrise: %.4f\n", weather.Sunrise)
-			//fmt.Printf("Sunset: %.4f\n", weather.Sunset)
-			//fmt.Printf("index: %v\n", index)
 			list = append(list, Weather{
 				JobID:       jobId,
+				Dt:          w.List[index].Dt,
 				Main:        w.List[index].Weather[0].Main,
 				Description: w.List[index].Weather[0].Description,
 				Icon:        w.List[index].Weather[0].Icon,

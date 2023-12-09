@@ -44,6 +44,7 @@ ON jobs (zip_code);
 CREATE TABLE weathers (
     id uuid NOT NULL DEFAULT uuid_generate_v1mc(),
     job_id uuid NOT NULL,
+    dt real NULL,
     pressure real NULL,
     humidity real NULL,
     sunrise real NULL,

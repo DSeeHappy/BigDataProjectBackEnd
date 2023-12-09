@@ -49,25 +49,47 @@ func (rc WeatherController) RequestWeather(ctx *gin.Context) {
 	}
 
 	var weather models.WeatherInputDTO
+	var weatherString models.WeatherInputDTOString
+
 	err = json.Unmarshal(body, &weather)
+	if err != nil {
+		err = json.Unmarshal(body, &weatherString)
+		//read response body
 
-	var latitude = strconv.FormatFloat(weather.Lat, 'f', 6, 64)
-	var longitude = strconv.FormatFloat(weather.Lon, 'f', 6, 64)
-
-	log.Printf("Latitude: %v", latitude)
-	log.Printf("Longitude: %v", longitude)
-
-	//read response body
-
-	weatherResponse, errWeather := rc.weatherService.RequestWeather(latitude, longitude, weather.JobID)
-	if errWeather != nil {
-		log.Fatalf("Error while reading weather response body %v", errWeather)
-		return
+		weatherResponse, errWeather := rc.weatherService.RequestWeather(weatherString.Lat, weatherString.Lon, weather.JobID)
+		if errWeather != nil {
+			log.Fatalf("Error while reading weather response body STRING TYPE %v", errWeather)
+			return
+		}
+		ctx.JSON(http.StatusOK, weatherResponse)
 	}
 
-	ctx.JSON(http.StatusOK, weatherResponse)
-	//ctx.Status(http.StatusNoContent)
+	if weather.Lat == 0 || weather.Lon == 0 {
+		err = json.Unmarshal(body, &weatherString)
+		//read response body
 
+		weatherResponse, errWeather := rc.weatherService.RequestWeather(weatherString.Lat, weatherString.Lon, weather.JobID)
+		if errWeather != nil {
+			log.Fatalf("Error while reading weather response body STRING TYPE %v", errWeather)
+			return
+		}
+		ctx.JSON(http.StatusOK, weatherResponse)
+	} else {
+		var latitude = strconv.FormatFloat(weather.Lat, 'f', 6, 64)
+		var longitude = strconv.FormatFloat(weather.Lon, 'f', 6, 64)
+
+		log.Printf("Latitude: %v", latitude)
+		log.Printf("Longitude: %v", longitude)
+
+		//read response body
+
+		weatherResponse, errWeather := rc.weatherService.RequestWeather(latitude, longitude, weather.JobID)
+		if errWeather != nil {
+			log.Fatalf("Error while reading weather response body FLOAT TYPE %v", errWeather)
+			return
+		}
+		ctx.JSON(http.StatusOK, weatherResponse)
+	}
 }
 
 func (rc WeatherController) GetWeather(ctx *gin.Context) {

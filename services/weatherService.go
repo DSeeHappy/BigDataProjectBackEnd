@@ -61,7 +61,7 @@ func NewWeatherService(weathersRepository *repositories.WeatherRepository,
 func (rs WeatherService) RequestWeather(lat, lon, jobId string) (*[]models.Weather, *models.ResponseError) {
 	// request weather data from openweathermap.org
 	validateLatLng(lat, lon)
-	var url = "https://pro.openweathermap.org/data/2.5/forecast/climate?lat=" + lat + "&lon=" + lon + "&appid=fcc51394a211b5d91ede128ba9c971e5"
+	var url = "https://pro.openweathermap.org/data/2.5/forecast/climate?lat=" + lat + "&lon=" + lon + "&appid=fcc51394a211b5d91ede128ba9c971e5" + "&units=imperial"
 
 	weather, err := http.Get(url)
 	if err != nil {

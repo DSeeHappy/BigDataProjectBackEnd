@@ -34,6 +34,13 @@ func (js JobsService) CreateJob(job *models.Job) (*models.Job, *models.ResponseE
 
 func (js JobsService) UpdateJob(job *models.JobUpdate) *models.ResponseError {
 	responseErr := ValidateJobId(job.ID)
+	scheduled, validationErr := ValidateJobScheduledDate(*job.ScheduledDate)
+	if validationErr != nil {
+		return validationErr
+	}
+	if scheduled {
+		job.Scheduled = &scheduled
+	}
 	if responseErr != nil {
 		return responseErr
 	}
@@ -174,4 +181,12 @@ func ValidateJobId(jobId string) *models.ResponseError {
 	}
 
 	return nil
+}
+
+func ValidateJobScheduledDate(jobScheduledDate string) (bool, *models.ResponseError) {
+	if jobScheduledDate != "" {
+		return true, nil
+	}
+
+	return false, nil
 }

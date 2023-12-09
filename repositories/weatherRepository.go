@@ -21,11 +21,11 @@ func (rr WeatherRepository) CreateWeather(result []models.Weather) (*[]models.We
 	var weather []models.Weather
 	for index, w := range result {
 		query := `
-		INSERT INTO weathers(job_id, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow, icon, description, main, latitude, longitude, city_name, city_id, country, time_zone, population, temp_day, temp_min, temp_max, temp_night, temp_eve, temp_morn, feels_like_day, feels_like_night, feels_like_eve, feels_like_morn)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30)
+		INSERT INTO weathers(job_id,dt, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow, icon, description, main, latitude, longitude, city_name, city_id, country, time_zone, population, temp_day, temp_min, temp_max, temp_night, temp_eve, temp_morn, feels_like_day, feels_like_night, feels_like_eve, feels_like_morn)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31)
 		RETURNING id`
 
-		rows, err := rr.transaction.Query(query, w.JobID, w.Pressure, w.Humidity, w.Sunrise, w.Sunset, w.Speed, w.Deg, w.Clouds, w.Rain, w.Snow, w.Icon, w.Description, w.Main, w.City.LatLng.Lat, w.City.LatLng.Lon, w.City.Name, w.City.ID, w.City.Country, w.City.Timezone, w.City.Population, w.Temp.Day, w.Temp.Min, w.Temp.Max, w.Temp.Night, w.Temp.Eve, w.Temp.Morn, w.FeelsLike.Day, w.FeelsLike.Night, w.FeelsLike.Eve, w.FeelsLike.Morn)
+		rows, err := rr.transaction.Query(query, w.JobID, w.Dt, w.Pressure, w.Humidity, w.Sunrise, w.Sunset, w.Speed, w.Deg, w.Clouds, w.Rain, w.Snow, w.Icon, w.Description, w.Main, w.City.LatLng.Lat, w.City.LatLng.Lon, w.City.Name, w.City.ID, w.City.Country, w.City.Timezone, w.City.Population, w.Temp.Day, w.Temp.Min, w.Temp.Max, w.Temp.Night, w.Temp.Eve, w.Temp.Morn, w.FeelsLike.Day, w.FeelsLike.Night, w.FeelsLike.Eve, w.FeelsLike.Morn)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: err.Error(),
@@ -99,11 +99,11 @@ func (rr WeatherRepository) DeleteWeather(resultId string) (*models.Weather, *mo
 
 func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, *models.ResponseError) {
 	query := `
-	SELECT id, job_id, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow, icon, description, main, latitude, longitude, city_name, city_id, country, time_zone, population, temp_day, temp_min, temp_max, temp_night, temp_eve, temp_morn, feels_like_day, feels_like_night, feels_like_eve, feels_like_morn
+	SELECT id, job_id,dt, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow, icon, description, main, latitude, longitude, city_name, city_id, country, time_zone, population, temp_day, temp_min, temp_max, temp_night, temp_eve, temp_morn, feels_like_day, feels_like_night, feels_like_eve, feels_like_morn
 	FROM weathers
 	WHERE job_id = $1`
 
-	var pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow sql.NullFloat64
+	var dt, pressure, humidity, sunrise, sunset, speed, deg, clouds, rain, snow sql.NullFloat64
 	var icon, description, main sql.NullString
 	var latitude, longitude sql.NullFloat64
 	var city_name, country sql.NullString
@@ -126,7 +126,7 @@ func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, 
 	var id string
 
 	for rows.Next() {
-		err := rows.Scan(&id, &jobId, &pressure, &humidity, &sunrise, &sunset, &speed, &deg, &clouds, &rain, &snow, &icon, &description, &main, &latitude, &longitude, &city_name, &city_id, &country, &time_zone, &population, &temp_day, &temp_min, &temp_max, &temp_night, &temp_eve, &temp_morn, &feels_like_day, &feels_like_night, &feels_like_eve, &feels_like_morn)
+		err := rows.Scan(&id, &jobId, &dt, &pressure, &humidity, &sunrise, &sunset, &speed, &deg, &clouds, &rain, &snow, &icon, &description, &main, &latitude, &longitude, &city_name, &city_id, &country, &time_zone, &population, &temp_day, &temp_min, &temp_max, &temp_night, &temp_eve, &temp_morn, &feels_like_day, &feels_like_night, &feels_like_eve, &feels_like_morn)
 		if err != nil {
 			return nil, &models.ResponseError{
 				Message: "GetAllJobsWeather Repo Scan: " + err.Error(),
@@ -137,6 +137,7 @@ func (rr WeatherRepository) GetAllJobsWeather(jobId string) ([]*models.Weather, 
 		result := &models.Weather{
 			ID:    id,
 			JobID: jobId,
+			Dt:    float32(dt.Float64),
 			City: models.City{
 				ID:         int(city_id.Int64),
 				Name:       city_name.String,
