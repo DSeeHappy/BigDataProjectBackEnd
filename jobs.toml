@@ -13,6 +13,10 @@ max_open_connections = 20
 connection_max_lifetime = "60s"
 driver_name = "postgres"
 ###############################################################################
+
+[http]
+release_mode = false
+###############################################################################
 # RabbitMQ configuration
 
 [rabbitmq]
