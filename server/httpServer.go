@@ -80,6 +80,8 @@ func corsMiddleware() gin.HandlerFunc {
 func (hs HttpServer) Start() {
 	var err error
 
+	gin.SetMode(gin.ReleaseMode)
+
 	if gin.Mode() == gin.DebugMode {
 		err = hs.router.Run(hs.config.GetString("http.server_address"))
 	} else {

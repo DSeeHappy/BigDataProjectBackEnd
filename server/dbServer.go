@@ -9,7 +9,7 @@ import (
 )
 
 func InitDatabase(config *viper.Viper) *sql.DB {
-	connectionString := config.GetString("database.connection_string")
+	connectionString := config.GetString("database.url")
 	maxIdleConnections := config.GetInt("database.max_idle_connections")
 	maxOpenConnections := config.GetInt("database.max_open_connections")
 	connectionMaxLifetime := config.GetDuration("database.connection_max_lifetime")
