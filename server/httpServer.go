@@ -5,7 +5,6 @@ import (
 	"Backend/repositories"
 	"Backend/services"
 	"database/sql"
-	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"log"
@@ -82,11 +81,7 @@ func (hs HttpServer) Start() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	if gin.Mode() == gin.DebugMode {
-		err = hs.router.Run(hs.config.GetString("http.server_address"))
-	} else {
-		err = autotls.Run(hs.router, hs.config.GetString("http.server_url"))
-	}
+	err = hs.router.Run(hs.config.GetString("PORT"))
 
 	if err != nil {
 		log.Fatalf("Error while starting HTTP server: %v", err)
