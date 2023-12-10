@@ -27,6 +27,7 @@ ENV GIN_MODE=release
 COPY --from=build-stage /app/backend /app
 COPY --from=build-stage /app/jobs.toml /jobs.toml
 
+EXPOSE 8080
 EXPOSE 8081
 EXPOSE 80
 EXPOSE 443

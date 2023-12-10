@@ -5,6 +5,7 @@ import (
 	"Backend/repositories"
 	"Backend/services"
 	"database/sql"
+	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"log"
@@ -79,12 +80,11 @@ func corsMiddleware() gin.HandlerFunc {
 func (hs HttpServer) Start() {
 	var err error
 
-	//if gin.Mode() == gin.DebugMode {
-	//	err = hs.router.Run(hs.config.GetString("server_address"))
-	//} else {
-	//	err = autotls.Run(hs.router, hs.config.GetString("server_address"))
-	//}
-	err = hs.router.Run(hs.config.GetString("server_address"))
+	if gin.Mode() == gin.DebugMode {
+		err = hs.router.Run(hs.config.GetString("http.server_address"))
+	} else {
+		err = autotls.Run(hs.router, hs.config.GetString("http.server_url"))
+	}
 
 	if err != nil {
 		log.Fatalf("Error while starting HTTP server: %v", err)
