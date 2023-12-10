@@ -9,14 +9,18 @@ import (
 )
 
 func InitDatabase(config *viper.Viper) *sql.DB {
-	connectionString := config.GetString("DATABASE_URL")
+	connectionString := config.GetString("database.url")
 	maxIdleConnections := config.GetInt("database.max_idle_connections")
 	maxOpenConnections := config.GetInt("database.max_open_connections")
 	connectionMaxLifetime := config.GetDuration("database.connection_max_lifetime")
 	driverName := config.GetString("database.driver_name")
 
 	if connectionString == "" {
-		log.Fatalf("Database connectin string is missing")
+		log.Printf("Database connection string is missing, using DATABASE_URL environment variable")
+		connectionString = config.GetString("DATABASE_URL")
+		if connectionString != "" {
+			log.Fatalf("Database connectin string is missing")
+		}
 	}
 
 	dbHandler, err := sql.Open(driverName, connectionString)
