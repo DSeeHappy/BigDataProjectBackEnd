@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateJob(t *testing.T) {
+func TestJobController_CreateJob(t *testing.T) {
 	dbHandler, mock, dbErr := sqlmock.New()
 	if dbErr != nil {
 		log.Fatalf("Error while creating mock db: %v", dbErr)
@@ -70,7 +70,7 @@ func TestCreateJob(t *testing.T) {
 	assert.Equal(t, job, job, recorder.Result().StatusCode, io.ByteReader(recorder.Body))
 }
 
-func TestGetAllJobsResponse(t *testing.T) {
+func TestJobController_GetAllJobs(t *testing.T) {
 	dbHandler, mock, dbErr := sqlmock.New()
 	if dbErr != nil {
 		log.Fatalf("Error while creating mock db: %v", dbErr)
@@ -107,7 +107,11 @@ func TestGetAllJobsResponse(t *testing.T) {
 	assert.Equal(t, 2, len(jobs), recorder.Result().StatusCode, io.ByteReader(recorder.Body))
 }
 
-func TestDeleteJobResponse(t *testing.T) {
+func TestJobsController_UpdateJob(t *testing.T) {
+
+}
+
+func TestJobsController_DeleteJob(t *testing.T) {
 	dbHandler, mock, dbErr := sqlmock.New()
 	if dbErr != nil {
 		log.Fatalf("Error while creating mock db: %v", dbErr)
