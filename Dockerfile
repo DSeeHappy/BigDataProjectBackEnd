@@ -1,22 +1,34 @@
-# Start from golang alpine base image
-FROM golang:1.19-alpine
+
+FROM golang:1.21 AS build-stage
 LABEL authors="Juan Daniel Sanchez Chavez"
 
-# Set the Current Working Directory inside the container
+
 WORKDIR /app
 
-# Copy the source code to the Working Directory inside the container
-COPY . .
-
-# Download all dependencies.
-# Dependencies will be cached if the go.mod and go.sum files are not changed
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Build the Go app
-RUN go build -o Backend main.go
+COPY . .
 
-# Export necessary ports
+COPY jobs.toml /app/jobs.toml
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/backend
+
+## Run the tests in the container
+#FROM build-stage AS run-test-stage
+#RUN go test -v ./...
+
+# Deploy the application binary into a lean image
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
+
+WORKDIR /
+ENV GIN_MODE=release
+
+COPY --from=build-stage /app/backend /app
+COPY --from=build-stage /app/jobs.toml /jobs.toml
+
 EXPOSE 8080
 
-# Command to run when starting the container
-CMD ["/app/job-app"]
+USER nonroot:nonroot
+
+ENTRYPOINT ["/app"]
