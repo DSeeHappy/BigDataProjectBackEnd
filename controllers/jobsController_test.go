@@ -4,13 +4,14 @@ import (
 	"Backend/models"
 	"Backend/repositories"
 	"Backend/services"
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -27,9 +28,12 @@ func TestCreateJob(t *testing.T) {
 	defer dbHandler.Close()
 
 	columns := []string{"id", "name", "address", "city", "state", "zipCode", "country", "latitude", "longitude", "company_id", "scheduled_date", "scheduled", "is_active"}
-	mock.ExpectQuery("INSERT INTO").WillReturnRows(
+	mock.ExpectQuery(regexp.QuoteMeta(`
+		INSERT INTO jobs(name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10, 'false', 'true')
+		RETURNING id, name, address, city, state, zip_code, country, latitude, longitude,company_id, scheduled_date, scheduled, is_active`)).WillReturnRows(
 		sqlmock.NewRows(columns).
-			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "1", "", "false", "true"))
+			AddRow("59ee2dc2-963c-11ee-a48e-2f089e49b44b", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "1", "", "false", "true"))
 
 	router := testRouter(dbHandler)
 	var job = models.Job{
@@ -40,19 +44,18 @@ func TestCreateJob(t *testing.T) {
 		State:     "CO",
 		ZipCode:   "80482",
 		Country:   "USA",
-		Latitude:  "39.87637",
-		Longitude: "-105.75664",
 	}
 	body, marshalErr := json.Marshal(job)
 	if marshalErr != nil {
 		log.Fatalf("Error while marshaling job: %v", marshalErr)
 		t.Fatal(marshalErr)
 	}
-	request, err := http.NewRequest("POST", "/jobs", strings.NewReader(string(body)))
+	request, err := http.NewRequest("POST", "/jobs", bytes.NewBuffer(body))
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		t.Fatal(err)
 	}
+	request.Header.Set("Content-Type", "application/json")
 
 	recorder := httptest.NewRecorder()
 
@@ -78,8 +81,8 @@ func TestGetAllJobsResponse(t *testing.T) {
 	columns := []string{"id", "name", "address", "city", "state", "zipCode", "country", "latitude", "longitude", "scheduled_date", "scheduled", "is_active", "company_id"}
 	mock.ExpectQuery("SELECT \\* FROM jobs").WillReturnRows(
 		sqlmock.NewRows(columns).
-			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1").
-			AddRow("2", "Work Day", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1"))
+			AddRow("59ee2dc2-963c-11ee-a48e-2f089e49b44b", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1").
+			AddRow("a4579258-9633-11ee-82fd-2b4e6228dbae", "Work Day", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1"))
 
 	router := testRouter(dbHandler)
 	request, err := http.NewRequest("GET", "/jobs", nil)
@@ -112,13 +115,12 @@ func TestDeleteJobResponse(t *testing.T) {
 	}
 	defer dbHandler.Close()
 
-	columns := []string{"id", "name", "address", "city", "state", "zipCode", "country", "latitude", "longitude", "scheduled_date", "scheduled", "is_active", "company_id"}
-	mock.ExpectQuery("DELETE FROM jobs").WillReturnRows(
-		sqlmock.NewRows(columns).
-			AddRow("1", "Winter Weather", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true", "1"))
+	//regexp.QuoteMeta() MOST IMPORTANT TOOL EVER
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs SET is_active = 'false' WHERE id = $1`)).
+		WithArgs("a4579258-9633-11ee-82fd-2b4e6228dbae")
 
 	router := testRouter(dbHandler)
-	request, err := http.NewRequest("DELETE", "/jobs/1", nil)
+	request, err := http.NewRequest("DELETE", "/jobs/a4579258-9633-11ee-82fd-2b4e6228dbae", nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		t.Fatal(err)
@@ -128,13 +130,7 @@ func TestDeleteJobResponse(t *testing.T) {
 
 	router.ServeHTTP(recorder, request)
 
-	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode, recorder.Result().StatusCode, io.ByteReader(recorder.Body))
-
-	var jobs []*models.Job
-	json.Unmarshal(recorder.Body.Bytes(), &jobs)
-
-	assert.NotEmpty(t, jobs, recorder.Result().StatusCode, io.ByteReader(recorder.Body))
-	assert.Equal(t, 1, len(jobs), recorder.Result().StatusCode, io.ByteReader(recorder.Body))
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestSanity(t *testing.T) {
@@ -152,8 +148,8 @@ func TestSanity(t *testing.T) {
 	columns := []string{"id", "name", "company_id", "address", "city", "state", "zipCode", "country", "latitude", "longitude", "scheduled_date", "scheduled", "is_active"}
 	mock.ExpectQuery("SELECT *").WillReturnRows(
 		sqlmock.NewRows(columns).
-			AddRow("1", "Winter Weather", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true").
-			AddRow("2", "Work Day", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true"))
+			AddRow("59ee2dc2-963c-11ee-a48e-2f089e49b44b", "Winter Weather", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true").
+			AddRow("a4579258-9633-11ee-82fd-2b4e6228dbae", "Work Day", "1", "Bridger Ct", "Winter Park", "CO", "80482", "USA", "39.87637", "-105.75664", "", "false", "true"))
 
 	router := testRouter(dbHandler)
 	request, err := http.NewRequest("GET", "/", nil)

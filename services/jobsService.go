@@ -159,20 +159,20 @@ func ValidateJob(job *models.Job) *models.ResponseError {
 
 	if job.Name == "" {
 		return &models.ResponseError{
-			Message: "Invalid name",
+			Message: "Invalid name: " + job.Name,
 			Status:  http.StatusBadRequest,
 		}
 	}
 
 	if job.State == "" {
 		return &models.ResponseError{
-			Message: "Invalid state",
+			Message: "Invalid state: " + job.State,
 			Status:  http.StatusBadRequest}
 	}
 
 	if job.ZipCode == "" {
 		return &models.ResponseError{
-			Message: "Invalid Zip Code",
+			Message: "Invalid Zip Code: " + job.ZipCode,
 			Status:  http.StatusBadRequest,
 		}
 	}
