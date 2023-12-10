@@ -7,7 +7,7 @@
 [database]
 
 # db host for docker-compose
-connection_string = "host=db port=5432 user=postgres password=postgres dbname=jobs_db sslmode=disable"
+connection_string = "big-data-final-project-db.cnncnbpar4dt.us-west-2.rds.amazonaws.com"
 max_idle_connections = 5
 max_open_connections = 20
 connection_max_lifetime = "60s"
@@ -17,7 +17,7 @@ driver_name = "postgres"
 
 [http]
 
-server_address = ":8080"
+server_address = ":8081"
 ###############################################################################
 # RabbitMQ configuration
 
@@ -25,3 +25,17 @@ server_address = ":8080"
 
 rabbitmq_instance_type = "publisher"
 rabbitmq_url = "amqp://guest:guest@localhost:5672/"
+###############################################################################
+# Geocoder API configuration
+
+[geocoder]
+
+geocoder_api_key="AIzaSyCdZebGh7LnvVq5cINvbSlYupdykRlANw4"
+
+###############################################################################
+# CORS configuration
+
+[cors]
+
+allowed_origins = ["*"]
+allowed_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/kelvins/geocoder"
 	"log"
 
 	"github.com/spf13/viper"
@@ -22,6 +23,7 @@ func InitConfig(fileName string) *viper.Viper {
 		log.Fatal("Error while parsing configuration file", err)
 	}
 
+	geocoder.ApiKey = config.GetString("geocoder_api_key")
 	//if config.GetString("rabbitmq_instance_type") == "publisher" || config.GetString("rabbitmq_instance_type") == "PUBLISHER" {
 	//	log.Println("Initializing RabbitMQ Publisher")
 	//	server.InitRabbitMQPublisher()

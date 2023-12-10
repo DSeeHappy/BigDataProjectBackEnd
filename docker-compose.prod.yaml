@@ -1,0 +1,31 @@
+version: "3"
+services:
+  big-data-final-project-publisher:
+    container_name: big-data-final-project-publisher
+    image: ghcr.io/dseehappy/bigdataprojectbackend:master
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    platform: linux/amd64
+    environment:
+        - ENV=prod
+        - CONNECTION_STRING=big-data-final-project-db.cnncnbpar4dt.us-west-2.rds.amazonaws.com
+        - MAX_IDLE_CONNECTIONS=5
+        - MAX_OPEN_CONNECTIONS=10
+        - MAX_CONNECTION_LIFETIME=60
+        - DRIVER_NAME=postgres
+        - SERVER_ADDRESS=:8080
+        - GEOCODER_API_KEY=AIzaSyCdZebGh7LnvVq5cINvbSlYupdykRlANw4
+        - RABBITMQ_ADDRESS=amqps://b-93558370-bd39-4fb6-9325-778cd2d713cb.mq.us-east-1.amazonaws.com:5671
+        - RABBITMQ_QUEUE_NAME=jobs
+        - RABBITMQ_EXCHANGE_NAME=jobs
+        - RABBITMQ_EXCHANGE_TYPE=direct
+        - RABBITMQ_ROUTING_KEY=jobs
+        - RABBITMQ_CONSUMER_TAG=jobs
+        - RABBITMQ_CONSUMER_EXCLUSIVE=false
+        - RABBITMQ_CONSUMER_NO_LOCAL=false
+        - RABBITMQ_CONSUMER_NO_WAIT=false
+        - ALLOWED_ORIGINS=*
+        - ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS
+
+

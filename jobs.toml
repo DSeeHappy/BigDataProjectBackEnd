@@ -18,6 +18,7 @@ driver_name = "postgres"
 [http]
 
 server_address = ":8080"
+server_url = "api.constructopedia.app"
 ###############################################################################
 # RabbitMQ configuration
 

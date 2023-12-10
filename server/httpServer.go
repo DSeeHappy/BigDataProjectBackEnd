@@ -77,8 +77,15 @@ func corsMiddleware() gin.HandlerFunc {
 }
 
 func (hs HttpServer) Start() {
+	var err error
 
-	err := hs.router.Run(hs.config.GetString("http.server_address"))
+	//if gin.Mode() == gin.DebugMode {
+	//	err = hs.router.Run(hs.config.GetString("server_address"))
+	//} else {
+	//	err = autotls.Run(hs.router, hs.config.GetString("server_address"))
+	//}
+	err = hs.router.Run(hs.config.GetString("server_address"))
+
 	if err != nil {
 		log.Fatalf("Error while starting HTTP server: %v", err)
 	}
