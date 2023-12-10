@@ -7,7 +7,7 @@
 [database]
 
 # db host for docker-compose
-connection_string = "big-data-final-project-db.cnncnbpar4dt.us-west-2.rds.amazonaws.com"
+url = "host=db port=5432 user=postgres password=postgres dbname=job_db sslmode=disable"
 max_idle_connections = 5
 max_open_connections = 20
 connection_max_lifetime = "60s"

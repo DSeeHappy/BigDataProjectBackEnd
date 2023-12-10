@@ -32,6 +32,11 @@ Unit testing can be run without any docker containers running
 Integration testing requires the docker containers to be running
 
 To test the server, run the following command
+Testing will run the unit tests and integration tests for Controllers and Services
+
+- Services is the Unit testing
+- Controllers is the Integration testing
+
 ```bash
 go test ./...
 ```
@@ -42,11 +47,13 @@ Grafana is used to visualize the metrics
 
 The health monitoring tracks metrics for job and weather api calls
 
-# Deployment
-The server is deployed to AWS using ECS
-The server is deployed using a docker image
-The docker image is built using the Dockerfile
+This is done via metrics logic in the controllers, you are able to integrate prometheus go_client
+to track metrics for the server, and it exposes and endpoint for prometheus to scrape
 
-JetBrains Space Packages is used to build the docker image and push it to JetBrains Space Container Registry
-JetBrains Space Container Registry is also used to deploy the docker image to AWS ECS
+Currently, not thoroughly setup with extensive metrics but base logic for metrics reporting is set up.
+
+# Deployment
+
+Heroku is used to deploy the GO Server providing continuous integration and continuous deployment from the master branch
+ElephantSQL is used to deploy the Postgres DB
 
