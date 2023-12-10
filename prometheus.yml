@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['final-backend-cu-dc8335fdb409.herokuapp.com']
