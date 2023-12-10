@@ -81,7 +81,7 @@ func (hs HttpServer) Start() {
 
 	gin.SetMode(gin.ReleaseMode)
 
-	err = hs.router.Run(hs.config.GetString("PORT"))
+	err = hs.router.Run(":" + hs.config.GetString("PORT"))
 
 	if err != nil {
 		log.Fatalf("Error while starting HTTP server: %v", err)
