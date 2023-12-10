@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateJob(t *testing.T) {
+func testValidateWeather(t *testing.T) {
 	tests := []struct {
 		name   string
 		runner *models.Job

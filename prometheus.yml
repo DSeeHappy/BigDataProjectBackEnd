@@ -2,6 +2,6 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: 'big-data-final-prometheus'
     static_configs:
       - targets: ['final-backend-cu-dc8335fdb409.herokuapp.com']

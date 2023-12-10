@@ -3,7 +3,10 @@ package services
 import (
 	"Backend/models"
 	"Backend/repositories"
+	"github.com/kelvins/geocoder"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 type JobsService struct {
@@ -22,6 +25,35 @@ func (js JobsService) CreateJob(job *models.Job) (*models.Job, *models.ResponseE
 	responseErr := ValidateJob(job)
 	if responseErr != nil {
 		return nil, responseErr
+	}
+
+	if job.Latitude == "" || job.Longitude == "" {
+		//var number int
+		//var convErr error
+		var address geocoder.Address
+
+		geocoder.ApiKey = "AIzaSyCdZebGh7LnvVq5cINvbSlYupdykRlANw4"
+		// Geocoding for lat/lon values of location
+		address = geocoder.Address{
+			Street:     job.Address,
+			City:       job.City,
+			State:      job.State,
+			PostalCode: job.ZipCode,
+			Country:    job.Country,
+		}
+		log.Printf("Address: %v", address)
+
+		location, geocodeErr := geocoder.Geocoding(address)
+		if geocodeErr != nil {
+			return nil, &models.ResponseError{
+				Message: "Error while geocoding address" + geocodeErr.Error(),
+				Status:  http.StatusInternalServerError,
+			}
+		}
+
+		job.Latitude = strconv.FormatFloat(location.Latitude, 'f', 6, 64)
+		job.Longitude = strconv.FormatFloat(location.Longitude, 'f', 6, 64)
+
 	}
 
 	jobWithWeather, err := js.jobsRepository.CreateJob(job)
