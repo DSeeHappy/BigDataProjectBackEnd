@@ -60,6 +60,7 @@ func (rc JobsController) CreateJob(ctx *gin.Context) {
 		//var convErr error
 		var address geocoder.Address
 
+		geocoder.ApiKey = "AIzaSyCdZebGh7LnvVq5cINvbSlYupdykRlANw4"
 		// Geocoding for lat/lon values of location
 		address = geocoder.Address{
 			Street:     job.Address,

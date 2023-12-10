@@ -13,9 +13,9 @@ spec:
         app: jobs-app
     spec:
       containers:
-        - image: jobs-app:latest
+        - image: ghcr.io/dseehappy/bigdataprojectbackend:master
           name: jobs-app
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:

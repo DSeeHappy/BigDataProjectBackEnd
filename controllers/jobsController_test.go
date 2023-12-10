@@ -187,7 +187,7 @@ func testRouter(dbHandler *sql.DB) *gin.Engine {
 	weatherService := services.NewWeatherService(weatherRepository, jobsRepository)
 
 	jobsController := NewJobsController(jobsService, usersServices, weatherService)
-	weatherController := NewWeatherController(weatherService, usersServices)
+	weatherController := NewWeatherController(weatherService, jobsService, usersServices)
 	usersController := NewUsersController(usersServices)
 
 	router := gin.Default()
