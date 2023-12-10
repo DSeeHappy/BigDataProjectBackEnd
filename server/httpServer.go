@@ -82,7 +82,7 @@ func corsMiddleware() gin.HandlerFunc {
 func (hs HttpServer) Start() {
 	var err error
 
-	if hs.config.GetString("http.release_mode") == "false" {
+	if hs.config.GetString("http.release_mode") == "false" || hs.config.GetString("http.release_mode") == "" || hs.config.GetString("DATABASE_URL") == "" {
 
 		err = hs.router.Run(":8080")
 	} else {
