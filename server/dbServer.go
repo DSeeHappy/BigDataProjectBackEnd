@@ -9,18 +9,12 @@ import (
 )
 
 func InitDatabase(config *viper.Viper) *sql.DB {
-	connectionString := config.GetString("DATABASE_URL")
 	maxIdleConnections := config.GetInt("database.max_idle_connections")
 	maxOpenConnections := config.GetInt("database.max_open_connections")
 	connectionMaxLifetime := config.GetDuration("database.connection_max_lifetime")
 	driverName := config.GetString("database.driver_name")
 
-	if connectionString == "" && config.GetString("http.release_mode") == "false" {
-		log.Printf("Database connection string is missing, using DATABASE_URL environment variable")
-		connectionString = config.GetString("database.url")
-	}
-
-	dbHandler, err := sql.Open(driverName, connectionString)
+	dbHandler, err := sql.Open(driverName, "host=localhost port=5432 user=postgres password=postgres dbname=jobs_db sslmode=disable")
 	if err != nil {
 		log.Fatalf("Error while initializing database: %v", err)
 	}

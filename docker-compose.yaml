@@ -20,6 +20,8 @@ services:
       - grafana_data:/var/lib/grafana
     networks:
         - job-server-network
+
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -29,18 +31,25 @@ services:
       - ./rabbitmq/data:/var/lib/rabbitmq
     networks:
       - job-server-network
+
+
   db:
-    image: postgres:14.3
+    image: postgres:latest
+    restart: always
     environment:
+      SEMAPHORE_DB_OPTIONS_SSLMODE: disable
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jobs_db
     volumes:
-      - ./init:/docker-entrypoint-initdb.d
-      - ./data:/var/lib/postgresql/data
+      - init:/docker-entrypoint-initdb.d
+      - data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - job-server-network
+
+
   server:
     build:
       context: .
@@ -52,12 +61,12 @@ services:
     networks:
         - job-server-network
     restart: on-failure
-    platform: linux/amd64
 
 networks:
   job-server-network:
-        driver: bridge
 
 volumes:
     prometheus_data:
     grafana_data:
+    data:
+    init:

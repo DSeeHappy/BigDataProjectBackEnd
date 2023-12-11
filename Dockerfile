@@ -1,37 +1,13 @@
-
-FROM golang:1.21 AS build-stage
-LABEL authors="Juan Daniel Sanchez Chavez"
-
+FROM golang:1.21-alpine
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
 
-COPY jobs.toml /app/jobs.toml
+RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/backend
-
-## Run the tests in the container
-#FROM build-stage AS run-test-stage
-#RUN go test -v ./...
-
-# Deploy the application binary into a lean image
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
-
-WORKDIR /
-ENV GIN_MODE=release
-
-COPY --from=build-stage /app/backend /app
-COPY --from=build-stage /app/jobs.toml /jobs.toml
+RUN go build -o backend main.go
 
 EXPOSE 8080
-EXPOSE 8081
-EXPOSE 80
-EXPOSE 443
 
-USER nonroot:nonroot
-
-ENTRYPOINT ["/app"]
+CMD ["/app/backend"]
